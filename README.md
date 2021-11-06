@@ -5,7 +5,7 @@ A Joplin Plugin that mass replaces Resources.
 
 ### Automatic
 
-- Go to `Tools > Options > Plugins`
+- Go to `Preferences > Plugins` (Mac) OR `Tools > Options > Plugins`
 - Search for `Replace Resources`
 - Click Install plugin
 - Restart Joplin to enable the plugin
@@ -14,22 +14,20 @@ A Joplin Plugin that mass replaces Resources.
 
 - Download the latest released JPL package (`io.github.manuerwin.replaceresources.jpl`) from [here](https://github.com/manuerwin/joplin-plugin-replace-resources/releases/latest)
 - Close Joplin
-- Copy the downloaded JPL package in your profile `plugins` folder
+- Copy the downloaded JPL package into your profile `plugins` folder
 - Start Joplin
 
 ## Usage
 
-First configure the Plugin under `Tools > Options > Replace Resources`!
+First configure the Plugin under `Preferences > Plugins > Replace Resources` (Mac) OR `Tools > Options > Replace Resources` (PC?)
 
 Resources are replaced via the command `Tools > Replace Resources`
 
-## Options
-
-Go to `Tools > Options > Replace Resources`
+## Configuration Options
 
 | Option                       | Description                                                                                                                                                              | Default                 |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
-| `Files path`                | Where to obtain the files that will replace resources. <br>Filenames MUST be only the target resource id in the format of <resource_id>.<file_extension>, for example b1a7160da73b45ba80b9aeb0bc9d574c.png                                                    |                         |
+| `Files Path`                | Where to obtain the files that will replace resources. <br>Filenames MUST be only the target resource id in the format of <resource_id>.<file_extension>, for example b1a7160da73b45ba80b9aeb0bc9d574c.png, others will be ignored.                 |                         |
 
 ## Building the plugin
 
