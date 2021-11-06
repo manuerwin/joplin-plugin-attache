@@ -9,23 +9,27 @@ joplin.plugins.register({
 		console.info("Replace Resources plugin started");
 	
 		await settings.register();
+		const filesPathSetting = await joplin.settings.value("filesPath");
+		const filesPathDirExists = await fs.ensureDir(filesPathSetting);
+		const resourceDeletedPath = path.join(filesPathSetting, "1-resourceIsDeletedSyncNeeded");
+		const ensureDeletedDirExists = await fs.ensureDir(resourceDeletedPath);
+		const resourceReplacedPath = path.join(filesPathSetting, "2-resourceIsReplaced");
+		const ensureReplacedDirExists = await fs.ensureDir(resourceReplacedPath);
+		console.info(`Replace Resources - files and processing directories created at ${filesPathSetting}`);
 
 		await joplin.commands.register({
 			name: "ReplaceResources",
 			label: "Replace Resources",
 			execute: async () => {
-				const filesPathSetting = await joplin.settings.value("filesPath");
-				console.info(`Replace Resources - Files Path Value is ${filesPathSetting}`);
 				const allFiles = await fs.readdirSync(filesPathSetting);
-				const replacedPath = path.join(filesPathSetting, "replaced");
-				const ensureReplacedDirExists = await fs.ensureDir(replacedPath);
+				const regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
 
 				for (const fullNameExt of allFiles) {
 					let fileExt = path.extname(fullNameExt);
 					let resourceId = path.basename(fullNameExt, fileExt);
+					let filePath = path.join(filesPathSetting, fullNameExt);
 					let originalResource;
 
-					let regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
 					if ( regexpGoodFile.test(resourceId) ) {
 						try {
 							originalResource = await joplin.data.get(["resources", resourceId], {

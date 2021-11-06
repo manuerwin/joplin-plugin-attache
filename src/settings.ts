@@ -15,7 +15,7 @@ export namespace settings {
         section: "replaceResourcesSection",
         public: true,
         label: "Files Path",
-        description: "Path to the files that will replace your resources.",
+        description: "Path to files that will replace your resources. Restart Joplin after setting for automatic creation.",
       },
     });
   }
