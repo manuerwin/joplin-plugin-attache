@@ -21,13 +21,30 @@ A Joplin Plugin that mass replaces Resources.
 
 First configure the Plugin under `Preferences > Plugins > Replace Resources` (Mac) OR `Tools > Options > Replace Resources` (PC?)
 
-Resources are replaced via the command `Tools > Replace Resources`
+Due to Joplin's synchronisation conflict safeguards, this is a three step process at present sorry.
 
 ## Configuration Options
 
 | Option                       | Description                                                                                                                                                              | Default                 |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
 | `Files Path`                | Where to obtain the files that will replace resources. <br>Filenames MUST be only the target resource id in the format of <resource_id>.<file_extension>, for example b1a7160da73b45ba80b9aeb0bc9d574c.png, others will be ignored.                 |                         |
+
+### Step One - deleting resources
+After setting the configuration settings and restarting, the file and processing sub-directories are automatically created for you.
+Move (or copy if you're nervous :) ) the resource files you wish to replace into your defined files path.
+Then access the `Tools > Replace Resources Step 1 - Delete` command.
+This will delete each matching resource within Joplin, and move your file to the `1-resourceIsDeletedSyncNeeded` directory.
+
+Important: this step has NOT updated your Notes, you will see the resource reference within any note still exists, however the preview of the note will only show the placeholder icon.
+
+### Step Two - synchronisation
+Use your normal method of forcing Joplin to synchronise, you'll see remote resources being deleted.
+
+### Step Three - creating resources
+After the above synchronisation has finished, access the `Tools > Replace Resources Step 3 - Delete` command.
+This will create each resource within Joplin, and move your file to the `3-resourceIsReplaced` directory.
+
+Again, your Notes have NOT been updated in any way, the placeholder icon in preview will now show your replacement resource :)
 
 ## Building the plugin
 

@@ -11,10 +11,10 @@ joplin.plugins.register({
 		await settings.register();
 		const step0Dir = await joplin.settings.value("filesPath");
 		await fs.ensureDir(step0Dir);
-		const step1Dir = path.join(step0Dir, "1-resourceIsDeletedSyncNeeded");
+		const step1Dir = path.join(step0Dir, "Step 1 - Resource Deleted Sync Needed");
 		await fs.ensureDir(step1Dir);
-		const step2Dir = path.join(step0Dir, "2-resourceIsReplaced");
-		await fs.ensureDir(step2Dir);
+		const step3Dir = path.join(step0Dir, "Step 3 - Resource Replaced");
+		await fs.ensureDir(step3Dir);
 		console.info(`Replace Resources - files and processing directories exist at ${step0Dir}`);
 		const regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
 		let originalResource;
@@ -74,8 +74,8 @@ joplin.plugins.register({
 		});
 
 		await joplin.commands.register({
-			name: "ReplaceResourcesStep2",
-			label: "Replace Resources Step 2 - Create",
+			name: "ReplaceResourcesStep3",
+			label: "Replace Resources Step 3 - Create",
 			execute: async () => {
 				const allStep1Files = await fs.readdirSync(step1Dir);
 
@@ -105,16 +105,16 @@ joplin.plugins.register({
 								console.debug(`Resource created: ${resourceId}`);
 								
 								try {
-									let step2DirAndFile = path.join(step2Dir, fullNameExt);
+									let step3DirAndFile = path.join(step3Dir, fullNameExt);
 									console.debug(`step1DirAndFile: ${step1DirAndFile}`);
-									console.debug(`step2DirAndFile: ${step2DirAndFile}`);
-									let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
+									console.debug(`step3DirAndFile: ${step3DirAndFile}`);
+									let fileMove = await fs.move(step1DirAndFile, step3DirAndFile);
 									console.debug(`File moved: ${resourceId}`);
 								} catch (error) {
 									console.error(`ERROR - moving to replaced directory: ${error}`);	
 								}
 								
-							console.info(`Step 2 - Resource created, file moved: ${resourceId}`);
+							console.info(`Step 3 - Resource created, file moved: ${resourceId}`);
 			
 						} catch (error) {
 							console.error(`ERROR - POST Resource: ${resourceId} ${error}`);
@@ -130,8 +130,8 @@ joplin.plugins.register({
 		  MenuItemLocation.Tools
 		);
 		await joplin.views.menuItems.create(
-		  "myMenuItemToolsReplaceResourcesStep2",
-		  "ReplaceResourcesStep2",
+		  "myMenuItemToolsReplaceResourcesStep3",
+		  "ReplaceResourcesStep3",
 		  MenuItemLocation.Tools
 		);
 	},
