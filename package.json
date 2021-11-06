@@ -47,6 +47,9 @@
       "ts",
       "tsx",
       "js"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^api$": "<rootDir>/node_modules/joplinplugindevtools/dist/apiMock.js"
+    }
   }
 }
