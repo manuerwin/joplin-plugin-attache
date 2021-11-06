@@ -17,7 +17,7 @@ joplin.plugins.register({
 			label: "Replace Resources",
 			execute: async () => {
 				const filesPathValue = await joplin.settings.value("filesPath");
-				console.debug(`filesPathValue is ${filesPathValue}`);
+				console.info(`Replace Resources - Files Path Value is ${filesPathValue}`);
 				const fullFileNames = await fs.readdirSync(filesPathValue);
 
 				// for (const fullNameExt of fullFileNames) {
@@ -25,18 +25,15 @@ joplin.plugins.register({
 				// };
 
 				for (const fullNameExt of fullFileNames) {
-					console.debug(`fullNameExt is ${fullNameExt}`);
-
 					let fileExt = path.extname(fullNameExt);
-					console.debug(`fileExt is ${fileExt}`);
 					let resourceId = path.basename(fullNameExt, fileExt);
-					console.debug(`resourceId is ${resourceId}`);
-					console.debug(`typeof resourceId is: ` + typeof(resourceId) );
-					console.debug(`resourceId.length is: ` + resourceId.length );
+					let originalResource;
+					// console.debug(`resourceId: ${resourceId}`);
 
-					if (resourceId !== ".DS_Store") {					
+					// TODO - use Regex to match 32 hex names  ^[a-zA-Z0-9]{32}$
+					if (resourceId !== ".DS_Store") {
 						try {
-							const originalResource = await joplin.data.get(["resources", resourceId], {
+							originalResource = await joplin.data.get(["resources", resourceId], {
 								fields: [
 									"id",
 									"title",
@@ -46,16 +43,21 @@ joplin.plugins.register({
 									"created_time",
 									"updated_time",
 								],
-							});							
+							});
+							console.info(`Resource found: ${resourceId}`);
 						} catch (error) {
-							console.error(`GET on resources: ${error}`);
+							console.error(`ERROR - GET Resource: ${resourceId} ${error}`);
 						}
 						
-						// if (originalResource) {
-						// 	//console.debug("originalResource.id: " + originalResource.id);
-						// 	console.debug("originalResource: " + originalResource);
-							
-						// 	const resourceDelete = await joplin.data.delete(["resources", resourceId]);
+						if (originalResource) {
+							try {
+								let resourceDelete = await joplin.data.delete(["resources", resourceId]);
+								console.debug(`Resource deleted: ${originalResource.id}`);
+								// move file to "resource-deleted" sub-folder
+
+							} catch (error) {
+								console.error(`ERROR - DELETE Resource: ${resourceId} ${error}`);
+							}
 
 						// 	// create resource with id
 						// 	// const newResourceData = {
@@ -68,7 +70,7 @@ joplin.plugins.register({
 			
 						// 	// move file to "replaced" sub-folder
 						// 	// else, log error to console that resouce does not exist
-						// }	
+						}
 						//await joplin.commands.execute("openNote", newNote.id);
 					}
 				};
