@@ -1,5 +1,5 @@
 # Joplin Plugin
-A Joplin Plugin that mass replaces Resources and resource references within Notes.
+A Joplin Plugin that mass replaces Resources.
 
 ## Installation
 
@@ -44,7 +44,7 @@ The project is setup to use TypeScript, although you can change the configuratio
 
 To test the plugin, simply run `npm test`.
 
-This project is setup to use Jest, for testing purposes.
+This project is setup to use Jest for testing purposes.
 
 ## Updating the plugin framework
 
