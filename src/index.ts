@@ -25,8 +25,8 @@ joplin.plugins.register({
 					let resourceId = path.basename(fullNameExt, fileExt);
 					let originalResource;
 
-					// TODO - use Regex to match 32 hex names  ^[a-zA-Z0-9]{32}$
-					if (resourceId !== ".DS_Store") {
+					let regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
+					if ( regexpGoodFile.test(resourceId) ) {
 						try {
 							originalResource = await joplin.data.get(["resources", resourceId], {
 								fields: [
