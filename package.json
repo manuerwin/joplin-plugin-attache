@@ -13,14 +13,16 @@
   },
   "license": "GNU GPL3",
   "keywords": [
-    "joplin-plugin", "replace", "resources"
+    "joplin-plugin",
+    "replace",
+    "resources"
   ],
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@types/node": "^14.0.14",
     "chalk": "^4.1.0",
     "copy-webpack-plugin": "^6.1.0",
-    "fs-extra": "^10.0.0",
+    "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "jest": "^27.3.1",
     "joplinplugindevtools": "^1.0.9",
@@ -32,6 +34,9 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "yargs": "^16.2.0"
+  },
+  "browser": {
+    "fs": false
   },
   "jest": {
     "transform": {
