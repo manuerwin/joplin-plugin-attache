@@ -87,9 +87,9 @@ joplin.plugins.register({
 					if ( regexpGoodFile.test(resourceId) ) {
 						let newResourceData = {
 							id: resourceId,
-							title: originalResource.title,
-							user_created_time: originalResource.created_time,
-							user_updated_time: originalResource.updated_time,
+							// title: originalResource.title,
+							// user_created_time: originalResource.created_time,
+							// user_updated_time: originalResource.updated_time,
 						};
 						try {
 							let newResource = await joplin.data.post(
