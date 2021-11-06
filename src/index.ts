@@ -11,78 +11,70 @@ joplin.plugins.register({
 		await settings.register();
 	
 		// function here if needed
-	
+
 		await joplin.commands.register({
 			name: "ReplaceResources",
 			label: "Replace Resources",
 			execute: async () => {
-				// obtain folder path from settings
 				const filesPathValue = await joplin.settings.value("filesPath");
-				console.debug("filesPathValue is " + filesPathValue);
-				let filesPath = path.parse(filesPathValue);
+				console.debug(`filesPathValue is ${filesPathValue}`);
+				const fullFileNames = await fs.readdirSync(filesPathValue);
 
-				// retrieve an array of filenames in folder
+				// for (const fullNameExt of fullFileNames) {
+				// 	console.debug(`fullNameExt is ${fullNameExt}`);
+				// };
 
-				const fileNames = fs.readdirSync(filesPathValue);
+				for (const fullNameExt of fullFileNames) {
+					console.debug(`fullNameExt is ${fullNameExt}`);
 
-				// for each resource id in collection
-				fileNames.forEach(fileName => {
-					console.debug(fileName);
-					//var resourceId
-					// if resource exists
-					// get properties for duplication
-					// resourceCreatedTime
-					// resourceUpdatedTime
-					// resourceTitle
-	
-					// delete resource
-					//await joplin.data.delete(["resources", resourceId]);
-	
-					// create resource with id
-					// const newResourceData = {
-					// 	id: resourceId,
-					// 	//user_created_time: resourceCreatedTime,
-					// 	//user_updated_time: resourceUpdatedTime,
-					// 	title: resourceTitle
-					// };
-					// const newNote = await joplin.data.post(["notes"], null, newResourceData);
-	
-					// move file to "replaced" sub-folder
-					// else, log error to console that resouce does not exist
-	
-					// const ids = await joplin.workspace.selectedNoteIds();
-					// if (ids.length > 1) {
-					//   const newNoteBody = [];
-					//   let notebookId = null;
-					//   const newTags = [];
-					//   let preserveMetadata = [];
-					//   const preserveUrl = await joplin.settings.value(
-					// 	"preserveMetadataSourceUrl"
-					//   );
-	
-					//   // collect note data
-					//   for (const noteId of ids) {
-					// 	preserveMetadata = [];
-					// 	const note = await joplin.data.get(["notes", noteId], {
-					// 	  fields: [
-					// 		"title",
-					// 		"body",
-					// 		"parent_id",
-					// 		"source_url",
-					// 		"created_time",
-					// 		"updated_time",
-					// 		"latitude",
-					// 		"longitude",
-					// 		"altitude",
-					// 	  ],
-					// 	});
-	
-					//await joplin.commands.execute("openNote", newNote.id);
-				});
-	
+					let fileExt = path.extname(fullNameExt);
+					console.debug(`fileExt is ${fileExt}`);
+					let resourceId = path.basename(fullNameExt, fileExt);
+					console.debug(`resourceId is ${resourceId}`);
+					console.debug(`typeof resourceId is: ` + typeof(resourceId) );
+					console.debug(`resourceId.length is: ` + resourceId.length );
+
+					if (resourceId !== ".DS_Store") {					
+						try {
+							const originalResource = await joplin.data.get(["resources", resourceId], {
+								fields: [
+									"id",
+									"title",
+									"mime",
+									"filename",
+									"file_extension",
+									"created_time",
+									"updated_time",
+								],
+							});							
+						} catch (error) {
+							console.error(`GET on resources: ${error}`);
+						}
+						
+						// if (originalResource) {
+						// 	//console.debug("originalResource.id: " + originalResource.id);
+						// 	console.debug("originalResource: " + originalResource);
+							
+						// 	const resourceDelete = await joplin.data.delete(["resources", resourceId]);
+
+						// 	// create resource with id
+						// 	// const newResourceData = {
+						// 	// 	id: resourceId,
+						// 	// 	//user_created_time: resourceCreatedTime,
+						// 	// 	//user_updated_time: resourceUpdatedTime,
+						// 	// 	title: resourceTitle
+						// 	// };
+						// 	// const newNote = await joplin.data.post(["notes"], null, newResourceData);
+			
+						// 	// move file to "replaced" sub-folder
+						// 	// else, log error to console that resouce does not exist
+						// }	
+						//await joplin.commands.execute("openNote", newNote.id);
+					}
+				};
 			},
 		});
-
+	
 		await joplin.views.menuItems.create(
 		  "myMenuItemToolsReplaceResources",
 		  "ReplaceResources",
