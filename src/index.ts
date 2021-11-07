@@ -64,8 +64,10 @@ joplin.plugins.register({
 						}
 					}
 				};
-
+				
+				console.info(`Step 2 - Running Synchronise for you - do NOT cancel!`);
 				// popup message - step 1 complete, now sync, then run step 2
+				await joplin.commands.execute('synchronize');
 			},
 		});
 
