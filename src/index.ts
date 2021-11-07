@@ -43,16 +43,13 @@ joplin.plugins.register({
 									"updated_time",
 								],
 							});
-							console.debug(`Resource found: ${resourceId}`);
 						} catch (error) {
-							console.debug(`Resource not found: ${resourceId}`);
 							console.error(`ERROR - GET Resource: ${resourceId} ${error}`);
 						}
 						
 						if (originalResource) {
 							try {
-								let resourceDelete = await joplin.data.delete(["resources", resourceId]);
-								console.debug(`Resource deleted: ${resourceId}`);
+								await joplin.data.delete(["resources", resourceId]);
 							} catch (error) {
 								console.error(`ERROR - DELETE Resource: ${resourceId} ${error}`);
 							}
@@ -61,7 +58,6 @@ joplin.plugins.register({
 						try {
 							let step1DirAndFile = path.join(step1Dir, fullNameExt);
 							let fileMove = await fs.move(filePath, step1DirAndFile);
-							console.debug(`File moved: ${resourceId}`);
 							console.info(`Step 1 - Resource deleted, file moved: ${resourceId}`);
 						} catch (error) {
 							console.error(`ERROR - moving to replaced directory: ${error}`);	
@@ -102,20 +98,16 @@ joplin.plugins.register({
 									},
 								]
 								);
-								console.debug(`Resource created: ${resourceId}`);
 								
 								try {
 									let step3DirAndFile = path.join(step3Dir, fullNameExt);
-									console.debug(`step1DirAndFile: ${step1DirAndFile}`);
-									console.debug(`step3DirAndFile: ${step3DirAndFile}`);
 									let fileMove = await fs.move(step1DirAndFile, step3DirAndFile);
-									console.debug(`File moved: ${resourceId}`);
 								} catch (error) {
 									console.error(`ERROR - moving to replaced directory: ${error}`);	
 								}
 								
-							console.info(`Step 3 - Resource created, file moved: ${resourceId}`);
-			
+								console.info(`Step 3 - Resource created, file moved: ${resourceId}`);
+								
 						} catch (error) {
 							console.error(`ERROR - POST Resource: ${resourceId} ${error}`);
 						}	
