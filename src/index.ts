@@ -13,13 +13,13 @@ joplin.plugins.register({
 		await fs.ensureDir(step1Dir);
 		const step2Dir = path.join(step0Dir, "Step 2 - Resource Replaced");
 		await fs.ensureDir(step2Dir);
-		console.info(`Replace Resources plugin started and files and processing directories exist at ${step0Dir}`);
+		console.info(`Replace Resources plugin started, files and directories exist at ${step0Dir}`);
 		const regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
 		let originalResource;
 
 		await joplin.commands.register({
 			name: "ReplaceResourcesStep1",
-			label: "Replace Resources: Step 1 Delete + Step 2 Sync",
+			label: "Replace Resources: Step 1 Delete + Sync",
 			execute: async () => {
 				const allFiles = await fs.readdirSync(step0Dir);
 
@@ -63,12 +63,18 @@ joplin.plugins.register({
 					}
 				};
 				
-				try {
-					console.info(`Step 2 - Running Synchronise for you - do NOT cancel!`);
-					await joplin.commands.execute('synchronize');	
-				} catch (error) {
-					console.error(`ERROR - synchronise: ${error}`);
+				async function startSync() {
+					try {
+						console.info(`Step 2 - Running Synchronise for you - do NOT cancel!`);
+						joplin.commands.execute('synchronize');	
+					} catch (error) {
+						console.error(`ERROR - synchronise: ${error}`);
+					}
 				}
+
+				console.debug(`About to await startSync`);
+				let synch = await startSync();
+				console.debug(`await startSync done`);
 			},
 		});
 
