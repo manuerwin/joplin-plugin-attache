@@ -6,22 +6,20 @@ import * as fs from "fs-extra";
 
 joplin.plugins.register({
 	onStart: async function () {
-		console.info("Replace Resources plugin started");
-	
 		await settings.register();
 		const step0Dir = await joplin.settings.value("filesPath");
 		await fs.ensureDir(step0Dir);
 		const step1Dir = path.join(step0Dir, "Step 1 - Resource Deleted Sync Needed");
 		await fs.ensureDir(step1Dir);
-		const step3Dir = path.join(step0Dir, "Step 3 - Resource Replaced");
-		await fs.ensureDir(step3Dir);
-		console.info(`Replace Resources - files and processing directories exist at ${step0Dir}`);
+		const step2Dir = path.join(step0Dir, "Step 2 - Resource Replaced");
+		await fs.ensureDir(step2Dir);
+		console.info(`Replace Resources plugin started and files and processing directories exist at ${step0Dir}`);
 		const regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
 		let originalResource;
 
 		await joplin.commands.register({
 			name: "ReplaceResourcesStep1",
-			label: "Replace Resources Step 1 - Delete",
+			label: "Replace Resources: Step 1 Delete + Step 2 Sync",
 			execute: async () => {
 				const allFiles = await fs.readdirSync(step0Dir);
 
@@ -60,20 +58,23 @@ joplin.plugins.register({
 							let fileMove = await fs.move(filePath, step1DirAndFile);
 							console.info(`Step 1 - Resource deleted, file moved: ${resourceId}`);
 						} catch (error) {
-							console.error(`ERROR - moving to replaced directory: ${error}`);	
+							console.error(`ERROR - moving to replaced directory: ${error}`);
 						}
 					}
 				};
 				
-				console.info(`Step 2 - Running Synchronise for you - do NOT cancel!`);
-				// popup message - step 1 complete, now sync, then run step 2
-				await joplin.commands.execute('synchronize');
+				try {
+					console.info(`Step 2 - Running Synchronise for you - do NOT cancel!`);
+					await joplin.commands.execute('synchronize');	
+				} catch (error) {
+					console.error(`ERROR - synchronise: ${error}`);
+				}
 			},
 		});
 
 		await joplin.commands.register({
-			name: "ReplaceResourcesStep3",
-			label: "Replace Resources Step 3 - Create",
+			name: "ReplaceResourcesStep2",
+			label: "Replace Resources: Step 2 Create",
 			execute: async () => {
 				const allStep1Files = await fs.readdirSync(step1Dir);
 
@@ -102,13 +103,13 @@ joplin.plugins.register({
 								);
 								
 								try {
-									let step3DirAndFile = path.join(step3Dir, fullNameExt);
-									let fileMove = await fs.move(step1DirAndFile, step3DirAndFile);
+									let step2DirAndFile = path.join(step2Dir, fullNameExt);
+									let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
 								} catch (error) {
 									console.error(`ERROR - moving to replaced directory: ${error}`);	
 								}
 								
-								console.info(`Step 3 - Resource created, file moved: ${resourceId}`);
+								console.info(`Step 2 - Resource created, file moved: ${resourceId}`);
 								
 						} catch (error) {
 							console.error(`ERROR - POST Resource: ${resourceId} ${error}`);
@@ -124,8 +125,8 @@ joplin.plugins.register({
 		  MenuItemLocation.Tools
 		);
 		await joplin.views.menuItems.create(
-		  "myMenuItemToolsReplaceResourcesStep3",
-		  "ReplaceResourcesStep3",
+		  "myMenuItemToolsReplaceResourcesStep2",
+		  "ReplaceResourcesStep2",
 		  MenuItemLocation.Tools
 		);
 	},
