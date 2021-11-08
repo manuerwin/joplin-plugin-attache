@@ -15,13 +15,14 @@ joplin.plugins.register({
 		await fs.ensureDir(step2Dir);
 		console.info(`Replace Resources plugin started, files and directories exist at ${step0Dir}`);
 		const regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
+		const inProgressLockFileName = 'ReplaceInProgress.lock';
 		let originalResource;
 
 		await joplin.commands.register({
-			name: "ReplaceResourcesStep1",
-			label: "Replace Resources: Step 1 Delete + Sync",
+			name: "ReplaceResources",
+			label: "Replace Resources",
 			execute: async () => {
-				const allFiles = await fs.readdirSync(step0Dir);
+				const allFiles = fs.readdirSync(step0Dir);
 
 				for (const fullNameExt of allFiles) {
 					let fileExt = path.extname(fullNameExt);
@@ -56,34 +57,31 @@ joplin.plugins.register({
 						try {
 							let step1DirAndFile = path.join(step1Dir, fullNameExt);
 							let fileMove = await fs.move(filePath, step1DirAndFile);
-							console.info(`Step 1 - Resource deleted, file moved: ${resourceId}`);
+							console.info(`Resource deleted, file moved: ${resourceId}`);
 						} catch (error) {
 							console.error(`ERROR - moving to replaced directory: ${error}`);
 						}
 					}
 				};
 				
-				async function startSync() {
-					try {
-						console.info(`Step 2 - Running Synchronise for you - do NOT cancel!`);
-						joplin.commands.execute('synchronize');	
-					} catch (error) {
-						console.error(`ERROR - synchronise: ${error}`);
-					}
+				try {
+					console.info(`Running Synchronise for you - do NOT cancel!`);
+					const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
+					fs.ensureFileSync(inProgressLockFile);
+					joplin.commands.execute('synchronize');	
+				} catch (error) {
+					console.error(`ERROR - synchronise: ${error}`);
 				}
-
-				console.debug(`About to await startSync`);
-				let synch = await startSync();
-				console.debug(`await startSync done`);
-			},
+			}
 		});
 
-		await joplin.commands.register({
-			name: "ReplaceResourcesStep2",
-			label: "Replace Resources: Step 2 Create",
-			execute: async () => {
-				const allStep1Files = await fs.readdirSync(step1Dir);
+		joplin.workspace.onSyncComplete(async (event: any) => {
+			const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
+			const inProgressLockFileExists = fs.pathExistsSync(inProgressLockFile);
 
+			if (inProgressLockFileExists) {
+				const allStep1Files = await fs.readdirSync(step1Dir);
+	
 				for (const fullNameExt of allStep1Files) {
 					let fileExt = path.extname(fullNameExt);
 					let resourceId = path.basename(fullNameExt, fileExt);
@@ -115,24 +113,20 @@ joplin.plugins.register({
 									console.error(`ERROR - moving to replaced directory: ${error}`);	
 								}
 								
-								console.info(`Step 2 - Resource created, file moved: ${resourceId}`);
+								console.info(`Resource created, file moved: ${resourceId}`);
 								
 						} catch (error) {
 							console.error(`ERROR - POST Resource: ${resourceId} ${error}`);
-						}	
-					};
-				};
-			},
+						}
+					}
+				}
+				fs.removeSync(inProgressLockFile);
+			}
 		});
-	
+
 		await joplin.views.menuItems.create(
-		  "myMenuItemToolsReplaceResourcesStep1",
-		  "ReplaceResourcesStep1",
-		  MenuItemLocation.Tools
-		);
-		await joplin.views.menuItems.create(
-		  "myMenuItemToolsReplaceResourcesStep2",
-		  "ReplaceResourcesStep2",
+			"myMenuItemToolsReplaceResources",
+			"ReplaceResources",  
 		  MenuItemLocation.Tools
 		);
 	},
