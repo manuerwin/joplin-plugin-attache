@@ -74,8 +74,9 @@ joplin.plugins.register({
 				}
 			}
 		});
-
+		
 		joplin.workspace.onSyncComplete(async (event: any) => {
+			console.info(`Synchronise complete - creating resources`);
 			const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
 			const inProgressLockFileExists = fs.pathExistsSync(inProgressLockFile);
 
