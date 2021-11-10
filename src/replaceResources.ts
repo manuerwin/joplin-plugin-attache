@@ -30,18 +30,13 @@ export async function execute(): Promise<void> {
         if ( regexpGoodFile.test(resourceId) ) {
             try {
                 originalResource = await getResource(resourceId);
-                
-                console.debug(`resourceId      : ${resourceId}`);
-                console.debug(`originalResource: ${originalResource.id}`);
             } catch (error) {
                 console.error(`ERROR - GET Resource: ${resourceId} ${error}`);
             }
 
             if (originalResource) {
                 try {
-                    // await deleteResource(resourceId);
-                    console.debug(`resourceId to delete: ${resourceId}`);
-                    let deleteResourceStatus = await joplin.data.delete(["resources", resourceId]);
+                    let deleteResourceStatus = await deleteResource(resourceId);
                 } catch (error) {
                     console.error(`ERROR - DELETE Resource: ${resourceId} ${error}`);
                 }
@@ -80,24 +75,8 @@ export async function syncComplete() {
             let step1DirAndFile = path.join(step1Dir, fullNameExt);
 
             if ( regexpGoodFile.test(resourceId) ) {
-                let newResourceData = {
-                    id: resourceId,
-                    // title: originalResource.title,
-                    // user_created_time: originalResource.created_time,
-                    // user_updated_time: originalResource.updated_time,
-                };
                 try {
-                    // let newResource = postResource(resourceId, step1Dir, fullNameExt);
-                    let newResource = await joplin.data.post(
-                        ["resources"],
-                        null,
-                        newResourceData,
-                        [
-                            {
-                                path: step1DirAndFile,
-                            },
-                        ]
-                    );
+                    let newResource = await postResource(resourceId, step1Dir, fullNameExt);
                         
                     try {
                         let step2DirAndFile = path.join(step2Dir, fullNameExt);
@@ -118,7 +97,7 @@ export async function syncComplete() {
 }
 
 export async function getResource(resourceId: string): Promise<any> {
-    let originalResource = await joplin.data.get(["resources", resourceId], {
+    return await joplin.data.get(["resources", resourceId], {
         fields: [
             "id",
             "title",
@@ -129,20 +108,24 @@ export async function getResource(resourceId: string): Promise<any> {
             "updated_time",
         ],
     });
-
-    return originalResource;
 }
 
 export async function deleteResource(resourceId: string): Promise<void> {
     return await joplin.data.delete(["resources", resourceId]);
 }
 
-export async function postResource(resourceId: string, pathToFile: string, fullFileNameExt: string): Promise<void> {
+export async function postResource(resourceId: string, pathToFile: string, fullFileNameExt: string): Promise<any> {
     let dirAndFile = path.join(pathToFile, fullFileNameExt);
+    let newResourceData = {
+        id: resourceId,
+        // title: originalResource.title,
+        // user_created_time: originalResource.created_time,
+        // user_updated_time: originalResource.updated_time,
+    };
     return await joplin.data.post(
         ["resources"],
         null,
-        {id: resourceId},
+        newResourceData,
         [
             {
                 path: dirAndFile,
