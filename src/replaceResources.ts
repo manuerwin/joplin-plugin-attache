@@ -7,7 +7,6 @@ let step1Dir;
 let step2Dir;
 const regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
 const inProgressLockFileName = 'ReplaceInProgress.lock';
-let originalResource;
 
 export async function init(): Promise<void> {
     step0Dir = await joplin.settings.value("filesPath");
@@ -21,27 +20,28 @@ export async function init(): Promise<void> {
 
 export async function execute(): Promise<void> {
     const allFiles = fs.readdirSync(step0Dir);
-
+    
     for (const fullNameExt of allFiles) {
         let fileExt = path.extname(fullNameExt);
         let resourceId = path.basename(fullNameExt, fileExt);
         let filePath = path.join(step0Dir, fullNameExt);
+        let originalResource;
 
         if ( regexpGoodFile.test(resourceId) ) {
             try {
-                let originalResource = await getResource(resourceId);
+                originalResource = await getResource(resourceId);
                 
                 console.debug(`resourceId      : ${resourceId}`);
                 console.debug(`originalResource: ${originalResource.id}`);
             } catch (error) {
                 console.error(`ERROR - GET Resource: ${resourceId} ${error}`);
             }
-            
+
             if (originalResource) {
                 try {
                     // await deleteResource(resourceId);
                     console.debug(`resourceId to delete: ${resourceId}`);
-                    await joplin.data.delete(["resources", resourceId]);
+                    let deleteResourceStatus = await joplin.data.delete(["resources", resourceId]);
                 } catch (error) {
                     console.error(`ERROR - DELETE Resource: ${resourceId} ${error}`);
                 }
@@ -134,12 +134,12 @@ export async function getResource(resourceId: string): Promise<any> {
 }
 
 export async function deleteResource(resourceId: string): Promise<void> {
-    await joplin.data.delete(["resources", resourceId]);
+    return await joplin.data.delete(["resources", resourceId]);
 }
 
 export async function postResource(resourceId: string, pathToFile: string, fullFileNameExt: string): Promise<void> {
     let dirAndFile = path.join(pathToFile, fullFileNameExt);
-    await joplin.data.post(
+    return await joplin.data.post(
         ["resources"],
         null,
         {id: resourceId},
