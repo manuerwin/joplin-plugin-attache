@@ -2,7 +2,6 @@ import joplin from 'api';
 import { MenuItemLocation } from "api/types";
 import { settings } from "./settings";
 import { init, execute, syncComplete } from './replaceResources';
-import * as path from "path";
 
 joplin.plugins.register({
 	onStart: async function () {
