@@ -114,18 +114,14 @@ export async function deleteResource(resourceId: string): Promise<void> {
     return await joplin.data.delete(["resources", resourceId]);
 }
 
-export async function postResource(resourceId: string, pathToFile: string, fullFileNameExt: string): Promise<any> {
+export async function postResource(resourceId: string, pathToFile: string, fullFileNameExt: string, title?: string): Promise<any> {
     let dirAndFile = path.join(pathToFile, fullFileNameExt);
-    let newResourceData = {
-        id: resourceId,
-        // title: originalResource.title,
-        // user_created_time: originalResource.created_time,
-        // user_updated_time: originalResource.updated_time,
-    };
+    let resourceTitle = (title) ? title : "";
+
     return await joplin.data.post(
         ["resources"],
         null,
-        newResourceData,
+        { id: resourceId, title: resourceTitle },
         [
             {
                 path: dirAndFile,
