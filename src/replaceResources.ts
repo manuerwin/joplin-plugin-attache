@@ -2,7 +2,6 @@ import { getResource, deleteResource, postResource } from "./replaceResourcesApi
 import joplin from "api";
 import * as path from "path";
 import * as fs from "fs-extra";
-// jest.mock(Joplin)
 
 let step0Dir;
 let step1Dir;
@@ -22,6 +21,7 @@ export async function init(): Promise<void> {
 
 export async function execute(): Promise<void> {
     const allFiles = fs.readdirSync(step0Dir);
+    let syncProceed = false;
     
     for (const fullNameExt of allFiles) {
         let fileExt = path.extname(fullNameExt);
@@ -32,35 +32,39 @@ export async function execute(): Promise<void> {
         if ( regexpGoodFile.test(resourceId) ) {
             try {
                 originalResource = await getResource(resourceId);
+
+                if (originalResource) {
+                    try {
+                        let deleteResourceStatus = await deleteResource(resourceId);
+                        console.debug(`deleteResourceStatus: ${deleteResourceStatus}`);
+
+                        try {
+                            let step1DirAndFile = path.join(step1Dir, fullNameExt);
+                            let fileMove = await fs.move(filePath, step1DirAndFile);
+                            console.info(`Resource deleted, file moved: ${resourceId}`);
+                            syncProceed = true;
+                        } catch (error) {
+                            console.error(`ERROR - moving to replaced directory: ${error}`);
+                        }
+                    } catch (error) {
+                        console.error(`ERROR - DELETE Resource: ${resourceId} ${error}`);
+                    }
+                }
             } catch (error) {
                 console.error(`ERROR - GET Resource: ${resourceId} ${error}`);
             }
-
-            if (originalResource) {
-                try {
-                    let deleteResourceStatus = await deleteResource(resourceId);
-                } catch (error) {
-                    console.error(`ERROR - DELETE Resource: ${resourceId} ${error}`);
-                }
-            }
-            
-            try {
-                let step1DirAndFile = path.join(step1Dir, fullNameExt);
-                let fileMove = await fs.move(filePath, step1DirAndFile);
-                console.info(`Resource deleted, file moved: ${resourceId}`);
-            } catch (error) {
-                console.error(`ERROR - moving to replaced directory: ${error}`);
-            }
         }
     };
-    
-    try {
-        console.info(`Running Synchronise for you - do NOT cancel!`);
-        const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
-        fs.ensureFileSync(inProgressLockFile);
-        joplin.commands.execute('synchronize');	
-    } catch (error) {
-        console.error(`ERROR - synchronise: ${error}`);
+
+    if (syncProceed) {
+        try {
+            console.info(`Running Synchronise for you - do NOT cancel!`);
+            const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
+            fs.ensureFileSync(inProgressLockFile);
+            joplin.commands.execute('synchronize');	
+        } catch (error) {
+            console.error(`ERROR - synchronise: ${error}`);
+        }
     }
 }
 
