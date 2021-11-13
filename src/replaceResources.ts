@@ -82,7 +82,7 @@ export async function syncComplete() {
 
             if ( regexpGoodFile.test(resourceId) ) {
                 try {
-                    let newResource = await postResource(resourceId, step1Dir, fullNameExt);
+                    let newResource = await postResource(resourceId, step1DirAndFile);
                         
                     try {
                         let step2DirAndFile = path.join(step2Dir, fullNameExt);
