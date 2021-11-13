@@ -1,4 +1,4 @@
-import { getResource, deleteResource, postResource } from "./replaceResourcesApi";
+import { getResource, deleteResource, postResource, executeSync } from "./replaceResourcesApi";
 import joplin from "api";
 import * as path from "path";
 import * as fs from "fs-extra";
@@ -61,7 +61,7 @@ export async function execute(): Promise<void> {
             console.info(`Running Synchronise for you - do NOT cancel!`);
             const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
             fs.ensureFileSync(inProgressLockFile);
-            joplin.commands.execute('synchronize');	
+            let startSync = await executeSync();
         } catch (error) {
             console.error(`ERROR - synchronise: ${error}`);
         }

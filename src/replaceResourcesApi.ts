@@ -33,3 +33,7 @@ export async function postResource(resourceId: string, pathToFile: string, title
         ]
     );
 }
+
+export async function executeSync(): Promise<void> {
+    joplin.commands.execute('synchronize');
+}
