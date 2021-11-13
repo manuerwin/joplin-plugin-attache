@@ -2,7 +2,7 @@ import joplin from 'api';
 import * as path from "path";
 import * as fs from "fs-extra";
 import { deleteResource, postResource } from '../src/replaceResourcesApi';
-import { execute, init, syncComplete } from '../src/replaceResources';
+import { execute, init, createResources } from '../src/replaceResources';
 
 // jest.mock('postResource');
 
@@ -94,8 +94,8 @@ afterEach(async () => {
       
 //       try {
 //           //   let replaceExec = await execute();
-//           // console.debug(`About to call syncComplete`);
-//           // syncComplete();
+//           // console.debug(`About to call createResources`);
+//           // createResources();
 //         } catch (error) {
 //             console.error(`Replace execute error: ${error}`);
 //         }
@@ -116,8 +116,8 @@ afterEach(async () => {
 
 //     try {
 //     //   let replaceExec = await execute();
-//       // console.debug(`About to call syncComplete`);
-//       // syncComplete();
+//       // console.debug(`About to call createResources`);
+//       // createResources();
 //     } catch (error) {
 //       console.error(`Replace execute error: ${error}`);
 //     }

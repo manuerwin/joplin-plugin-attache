@@ -67,7 +67,7 @@ export async function execute(): Promise<void> {
     }
 }
 
-export async function syncComplete() {
+export async function createResources() {
     const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
     const inProgressLockFileExists = fs.pathExistsSync(inProgressLockFile);
 
