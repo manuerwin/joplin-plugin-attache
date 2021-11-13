@@ -7,7 +7,7 @@ let step0Dir;
 let step1Dir;
 let step2Dir;
 const regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
-const inProgressLockFileName = 'ReplaceInProgress.lock';
+const createResourcesFileName = 'createResources.lock';
 
 export async function init(): Promise<void> {
     step0Dir = await joplin.settings.value("filesPath");
@@ -21,7 +21,7 @@ export async function init(): Promise<void> {
 
 export async function execute(): Promise<void> {
     const allFiles = fs.readdirSync(step0Dir);
-    let syncProceed = false;
+    let createResourcesProceed = false;
     
     for (const fullNameExt of allFiles) {
         let fileExt = path.extname(fullNameExt);
@@ -41,7 +41,7 @@ export async function execute(): Promise<void> {
                             let step1DirAndFile = path.join(step1Dir, fullNameExt);
                             let fileMove = await fs.move(filePath, step1DirAndFile);
                             console.info(`Resource deleted, file moved: ${resourceId}`);
-                            syncProceed = true;
+                            createResourcesProceed = true;
                         } catch (error) {
                             console.error(`ERROR - moving to replaced directory: ${error}`);
                         }
@@ -55,11 +55,13 @@ export async function execute(): Promise<void> {
         }
     };
 
-    if (syncProceed) {
+    if (createResourcesProceed) {
+        // IF sync is configured/enabled THEN start sync and do nothing else
+        // IF sync is NOT enabled THEN go to createResources
         try {
             console.info(`Running Synchronise for you - do NOT cancel!`);
-            const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
-            fs.ensureFileSync(inProgressLockFile);
+            const createResourcesLockFile = path.join(step1Dir, createResourcesFileName);
+            fs.ensureFileSync(createResourcesLockFile);
             let startSync = await executeSync();
         } catch (error) {
             console.error(`ERROR - synchronise: ${error}`);
@@ -68,10 +70,10 @@ export async function execute(): Promise<void> {
 }
 
 export async function createResources() {
-    const inProgressLockFile = path.join(step1Dir, inProgressLockFileName);
-    const inProgressLockFileExists = fs.pathExistsSync(inProgressLockFile);
+    const createResourcesLockFile = path.join(step1Dir, createResourcesFileName);
+    const createResourcesLockFileExists = fs.pathExistsSync(createResourcesLockFile);
 
-    if (inProgressLockFileExists) {
+    if (createResourcesLockFileExists) {
         const allStep1Files = await fs.readdirSync(step1Dir);
 
         for (const fullNameExt of allStep1Files) {
@@ -97,6 +99,6 @@ export async function createResources() {
                 }
             }
         }
-        fs.removeSync(inProgressLockFile);
+        fs.removeSync(createResourcesLockFile);
     }
 }
