@@ -36,7 +36,6 @@ export async function execute(): Promise<void> {
                 if (originalResource) {
                     try {
                         let deleteResourceStatus = await deleteResource(resourceId);
-                        console.debug(`deleteResourceStatus: ${deleteResourceStatus}`);
 
                         try {
                             let step1DirAndFile = path.join(step1Dir, fullNameExt);
