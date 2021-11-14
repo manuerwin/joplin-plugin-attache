@@ -6,7 +6,7 @@
 	"name": "Replace Resources",
 	"description": "Mass replacement of Joplin resources such as resized image files.",
 	"author": "Manu Erwin",
-	"homepage_url": "https://github.com/manuerwin/joplin-plugin-replace-resources/blob/master/readme.md",
+	"homepage_url": "https://github.com/manuerwin/joplin-plugin-replace-resources#readme",
 	"repository_url": "https://github.com/manuerwin/joplin-plugin-replace-resources",
 	"keywords": ["joplin-plugin", "replace", "resources"]
 }
