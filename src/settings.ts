@@ -18,5 +18,17 @@ export namespace settings {
         description: "Path to files that will replace your resources. Restart Joplin after setting for automatic creation.",
       },
     });
+    
+    await joplin.settings.registerSettings({
+      runOnStart: {
+        value: false,
+        type: SettingItemType.Bool,
+        section: "replaceResourcesSection",
+        public: true,
+        label: "Run on start",
+        description: "If checked true, Replace Resources will run immediately after Joplin starts. The default value is unchecked (false).",
+      },
+    });
+
   }
 }

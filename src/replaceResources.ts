@@ -72,17 +72,19 @@ export async function execute(): Promise<void> {
 export async function createResources() {
     const createResourcesLockFile = path.join(step1Dir, createResourcesFileName);
     const createResourcesLockFileExists = fs.pathExistsSync(createResourcesLockFile);
-
+    
     if (createResourcesLockFileExists) {
+        console.debug(`createResourcesLockFileExists: ${createResourcesLockFileExists}`);
         const allStep1Files = await fs.readdirSync(step1Dir);
-
+        
         for (const fullNameExt of allStep1Files) {
             let fileExt = path.extname(fullNameExt);
             let resourceId = path.basename(fullNameExt, fileExt);
             let step1DirAndFile = path.join(step1Dir, fullNameExt);
-
+            
             if ( regexpGoodFile.test(resourceId) ) {
                 try {
+                    console.debug(`about to postResource: ${resourceId}`);
                     let newResource = await postResource(resourceId, step1DirAndFile);
                         
                     try {

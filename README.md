@@ -44,9 +44,10 @@ Also note: your source files are NEVER deleted, they are simply moved to differe
 
 ## Configuration Options
 
-| Option                       | Description                                                                                                                                                              | Default                 |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
-| `Files Path`                | Where to obtain the files that will replace resources. <br>Filenames MUST be only the target resource id in the format of <resource_id>.<file_extension>, for example b1a7160da73b45ba80b9aeb0bc9d574c.png, others will be ignored.                 |                         |
+| Option          | Description | Default  |
+| --------------- | ----------- | -------  |
+| `Files Path`    | Where to obtain the files that will replace resources. <br>Filenames MUST be only the target resource id in the format of <resource_id>.<file_extension>, for example b1a7160da73b45ba80b9aeb0bc9d574c.png, others will be ignored. |       |
+| `Run on start`  | If checked (i.e. true), Replace Resources will run immediately after Joplin starts.    | unchecked (i.e. will NOT run on start by default) |
 
 ## Building the plugin
 

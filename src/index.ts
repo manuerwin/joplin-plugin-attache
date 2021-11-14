@@ -18,6 +18,7 @@ joplin.plugins.register({
 		});
 
 		joplin.workspace.onSyncComplete(async (event: any) => {
+			console.debug(`onSyncComplete event has occurred, about to call createResources`);
 			await createResources();
 		});
 
@@ -26,5 +27,11 @@ joplin.plugins.register({
 			"ReplaceResources",  
 		  MenuItemLocation.Tools
 		);
+
+		let runOnStart = await joplin.settings.value("runOnStart");
+		console.debug(`runOnStart: ${runOnStart}`);
+		if (runOnStart) {
+			let runOnStartExec = await execute();
+		}
 	},
 });
