@@ -57,15 +57,24 @@ export async function execute(): Promise<void> {
     };
 
     if (createResourcesProceed) {
-        // IF sync is configured/enabled THEN start sync and do nothing else
-        // IF sync is NOT enabled THEN go to createResources
+        const createResourcesLockFile = path.join(step1Dir, createResourcesFileName);
+        fs.ensureFileSync(createResourcesLockFile);
+        let syncTargetValue = 0;
+
         try {
-            console.info(`Running Synchronise for you - do NOT cancel!`);
-            const createResourcesLockFile = path.join(step1Dir, createResourcesFileName);
-            fs.ensureFileSync(createResourcesLockFile);
-            let startSync = await executeSync();
+            // Per https://joplinapp.org/schema/settings.json
+            syncTargetValue = await joplin.settings.globalValue("sync.target");
+            console.debug(`syncTargetValue: ${syncTargetValue}`);
         } catch (error) {
-            console.error(`ERROR - synchronise: ${error}`);
+            console.error(`ERROR - syncTargetValue: ${error}`);
+        }
+
+        if (syncTargetValue > 0) {    
+            console.info(`Running Synchronise for you - do NOT cancel!`);
+            let startSync = await executeSync();
+        } else {
+            console.debug(`No need to wait for sync, going straight to createResources`);
+            let goToCreateResources = await createResources();
         }
     }
 }
