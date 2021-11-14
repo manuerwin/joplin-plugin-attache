@@ -32,6 +32,7 @@ export async function execute(): Promise<void> {
         if ( regexpGoodFile.test(resourceId) ) {
             try {
                 originalResource = await getResource(resourceId);
+                console.info(`Resource found with id: ${resourceId}`);
 
                 if (originalResource) {
                     try {
@@ -40,7 +41,7 @@ export async function execute(): Promise<void> {
                         try {
                             let step1DirAndFile = path.join(step1Dir, fullNameExt);
                             let fileMove = await fs.move(filePath, step1DirAndFile);
-                            console.info(`Resource deleted, file moved: ${resourceId}`);
+                            console.info(`Resource deleted, file moved with id: ${resourceId}`);
                             createResourcesProceed = true;
                         } catch (error) {
                             console.error(`ERROR - moving to replaced directory: ${error}`);
@@ -94,7 +95,7 @@ export async function createResources() {
                         console.error(`ERROR - moving to replaced directory: ${error}`);	
                     }
                     
-                    console.info(`Resource created, file moved: ${resourceId}`);
+                    console.info(`Resource created, file moved with id: ${resourceId}`);
                         
                 } catch (error) {
                     console.error(`ERROR - POST Resource: ${resourceId} ${error}`);
@@ -103,4 +104,12 @@ export async function createResources() {
         }
         fs.removeSync(createResourcesLockFile);
     }
+
+    // Need to wait until after the above has completed
+    let runOnStartAndAfterSync = await joplin.settings.value("runOnStartAndAfterSync");
+    console.debug(`runOnStartAndAfterSync: ${runOnStartAndAfterSync}`);
+    if (runOnStartAndAfterSync) {
+        let runOnStartAndAfterSyncExec = await execute();
+    }
+
 }

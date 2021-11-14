@@ -28,10 +28,5 @@ joplin.plugins.register({
 		  MenuItemLocation.Tools
 		);
 
-		let runOnStart = await joplin.settings.value("runOnStart");
-		console.debug(`runOnStart: ${runOnStart}`);
-		if (runOnStart) {
-			let runOnStartExec = await execute();
-		}
 	},
 });

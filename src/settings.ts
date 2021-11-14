@@ -20,13 +20,13 @@ export namespace settings {
     });
     
     await joplin.settings.registerSettings({
-      runOnStart: {
+      runOnStartAndAfterSync: {
         value: false,
         type: SettingItemType.Bool,
         section: "replaceResourcesSection",
         public: true,
-        label: "Run on start",
-        description: "If checked true, Replace Resources will run immediately after Joplin starts. The default value is unchecked (false).",
+        label: "Run on start and after sync",
+        description: "If checked true, Replace Resources will run immediately after Joplin starts and after each synchronisation. The default value is unchecked (false).",
       },
     });
 
