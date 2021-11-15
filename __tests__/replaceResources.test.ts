@@ -2,7 +2,7 @@ import joplin from 'api';
 import * as path from "path";
 import * as fs from "fs-extra";
 import { deleteResource, postResource } from '../src/replaceResourcesApi';
-import { execute, init, createResources } from '../src/replaceResources';
+import { deleteResources, init, createResources } from '../src/replaceResources';
 
 // jest.mock('postResource');
 

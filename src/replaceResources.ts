@@ -19,7 +19,7 @@ export async function init(): Promise<void> {
     console.info(`Replace Resources plugin started, files and directories exist at ${step0Dir}`);
 }
 
-export async function execute(): Promise<void> {
+export async function deleteResources(): Promise<void> {
     const allFiles = fs.readdirSync(step0Dir);
     let createResourcesProceed = false;
     
@@ -116,7 +116,7 @@ export async function createResources() {
     let isRunOnStartAndAfterSync = await runOnStartAndAfterSync();
     console.debug(`isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
     if (isRunOnStartAndAfterSync) {
-        let isRunOnStartAndAfterSyncExec = await execute();
+        let isRunOnStartAndAfterSyncExec = await deleteResources();
     }
 
 }

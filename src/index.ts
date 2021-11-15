@@ -1,7 +1,7 @@
 import joplin from 'api';
 import { MenuItemLocation } from "api/types";
 import { settings } from "./settings";
-import { init, execute, createResources } from './replaceResources';
+import { init, deleteResources, createResources } from './replaceResources';
 
 joplin.plugins.register({
 	onStart: async function () {
@@ -13,7 +13,7 @@ joplin.plugins.register({
 			name: "ReplaceResources",
 			label: "Replace Resources",
 			execute: async () => {
-				await execute();
+				await deleteResources();
 			}
 		});
 
