@@ -1,7 +1,7 @@
 import joplin from 'api';
 import { MenuItemLocation } from "api/types";
 import { settings } from "./settings";
-import { init, deleteResources, createResources } from './replaceResources';
+import { init, deleteResources, createResources, syncConfiguredAndRunOnStart } from './replaceResources';
 
 joplin.plugins.register({
 	onStart: async function () {
@@ -21,12 +21,13 @@ joplin.plugins.register({
 			console.debug(`onSyncComplete event has occurred, about to call createResources`);
 			await createResources();
 		});
-
+		
 		await joplin.views.menuItems.create(
 			"myMenuItemToolsReplaceResources",
 			"ReplaceResources",  
-		  MenuItemLocation.Tools
+			MenuItemLocation.Tools
 		);
-
+		
+		await syncConfiguredAndRunOnStart();
 	},
 });

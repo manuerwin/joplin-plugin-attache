@@ -62,7 +62,7 @@ export async function deleteResources(): Promise<void> {
         let isSyncConfigured = false;
 
         try {
-            isSyncConfigured = await joplin.settings.globalValue("sync.target");
+            isSyncConfigured = await syncConfigured();
         } catch (error) {
             console.error(`ERROR - isSyncConfigured: ${error}`);
         }
@@ -125,14 +125,30 @@ export async function syncConfigured(): Promise<boolean> {
     // Per https://joplinapp.org/schema/settings.json
     let syncTargetValue = await joplin.settings.globalValue("sync.target");
     console.debug(`syncTargetValue: ${syncTargetValue}`);
-
+    
     if (syncTargetValue > 0) {
+        console.debug(`syncTargetValue > 0`);
         return true;
     }
-
+    
+    console.debug(`DEFAULT return false`);
     return false;
 }
 
 export async function runOnStartAndAfterSync(): Promise<boolean> {
-    return await joplin.settings.value("runOnStartAndAfterSync");
+    let runOnStartValue = await joplin.settings.value("runOnStartAndAfterSync");
+    console.debug(`runOnStartValue: ${runOnStartValue}`);
+    return runOnStartValue;
+}
+
+export async function syncConfiguredAndRunOnStart() {
+    let isSyncConfigured = await syncConfigured();
+    console.debug(`isSyncConfigured: ${isSyncConfigured}`);
+    let isRunOnStartAndAfterSync = await runOnStartAndAfterSync();
+    console.debug(`isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
+
+    if (!isSyncConfigured && isRunOnStartAndAfterSync) {
+        console.debug(`!syncConfigured && runOnStartAndAfterSync`);
+    	await deleteResources();
+    }
 }
