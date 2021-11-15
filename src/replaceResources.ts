@@ -113,10 +113,10 @@ export async function createResources() {
     }
 
     // Need to wait until after the above has completed
-    let runOnStartAndAfterSync = await joplin.settings.value("runOnStartAndAfterSync");
-    console.debug(`runOnStartAndAfterSync: ${runOnStartAndAfterSync}`);
-    if (runOnStartAndAfterSync) {
-        let runOnStartAndAfterSyncExec = await execute();
+    let isRunOnStartAndAfterSync = await runOnStartAndAfterSync();
+    console.debug(`isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
+    if (isRunOnStartAndAfterSync) {
+        let isRunOnStartAndAfterSyncExec = await execute();
     }
 
 }
@@ -131,4 +131,8 @@ export async function syncConfigured(): Promise<boolean> {
     }
 
     return false;
+}
+
+export async function runOnStartAndAfterSync(): Promise<boolean> {
+    return await joplin.settings.value("runOnStartAndAfterSync");
 }
