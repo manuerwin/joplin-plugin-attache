@@ -2,6 +2,10 @@
 
 ## not released
 
+## v0.12.2 [beta] (2021-11-15)
+
+Patch: When no sync configured, Run on Start works.
+
 ## v0.12.1 [beta] (2021-11-14)
 
 Patch: When no sync implemented, resource creation occurs immediately, WITHOUT the sync setup popup.
