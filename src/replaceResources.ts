@@ -59,17 +59,15 @@ export async function execute(): Promise<void> {
     if (createResourcesProceed) {
         const createResourcesLockFile = path.join(step1Dir, createResourcesFileName);
         fs.ensureFileSync(createResourcesLockFile);
-        let syncTargetValue = 0;
+        let isSyncConfigured = false;
 
         try {
-            // Per https://joplinapp.org/schema/settings.json
-            syncTargetValue = await joplin.settings.globalValue("sync.target");
-            console.debug(`syncTargetValue: ${syncTargetValue}`);
+            isSyncConfigured = await joplin.settings.globalValue("sync.target");
         } catch (error) {
-            console.error(`ERROR - syncTargetValue: ${error}`);
+            console.error(`ERROR - isSyncConfigured: ${error}`);
         }
 
-        if (syncTargetValue > 0) {    
+        if (isSyncConfigured) {
             console.info(`Running Synchronise for you - do NOT cancel!`);
             let startSync = await executeSync();
         } else {
@@ -121,4 +119,16 @@ export async function createResources() {
         let runOnStartAndAfterSyncExec = await execute();
     }
 
+}
+
+export async function syncConfigured(): Promise<boolean> {
+    // Per https://joplinapp.org/schema/settings.json
+    let syncTargetValue = await joplin.settings.globalValue("sync.target");
+    console.debug(`syncTargetValue: ${syncTargetValue}`);
+
+    if (syncTargetValue > 0) {
+        return true;
+    }
+
+    return false;
 }
