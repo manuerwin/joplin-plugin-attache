@@ -6,7 +6,7 @@ import * as fs from "fs-extra";
 let step0Dir;
 let step1Dir;
 let step2Dir;
-const regexpGoodFile: RegExp = /^[a-zA-Z0-9]{32}$/;
+const regexpResourceId: RegExp = /^[a-zA-Z0-9]{32}$/;
 const createResourcesFileName = 'createResources.lock';
 
 export async function init(): Promise<void> {
@@ -29,7 +29,7 @@ export async function deleteResources(): Promise<void> {
         let filePath = path.join(step0Dir, fullNameExt);
         let originalResource;
 
-        if ( regexpGoodFile.test(resourceId) ) {
+        if ( regexpResourceId.test(filename) ) {
             try {
                 originalResource = await getResource(resourceId);
                 console.info(`Resource found with id: ${resourceId}`);
@@ -90,7 +90,7 @@ export async function createResources() {
             let resourceId = path.basename(fullNameExt, fileExt);
             let step1DirAndFile = path.join(step1Dir, fullNameExt);
             
-            if ( regexpGoodFile.test(resourceId) ) {
+            if ( regexpResourceId.test(filename) ) {
                 try {
                     console.debug(`about to postResource: ${resourceId}`);
                     let newResource = await postResource(resourceId, step1DirAndFile);
