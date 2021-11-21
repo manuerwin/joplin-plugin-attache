@@ -1,4 +1,4 @@
-import { getResourceById, deleteResource, postResource, executeSync, getResourceByFilename } from "./replaceResourcesApi";
+import { deleteResource, postResource, executeSync, getResourceByFilename } from "./replaceResourcesApi";
 import joplin from "api";
 import * as path from "path";
 import * as fs from "fs-extra";
@@ -6,8 +6,9 @@ import * as fs from "fs-extra";
 let step0Dir;
 let step1Dir;
 let step2Dir;
-const regexpResourceId: RegExp = /^[a-zA-Z0-9]{32}$/;
-const createResourcesFileName = 'createResources.lock';
+const regExpResourceId: RegExp = /^[a-zA-Z0-9]{32}$/;
+const fileResourceExt = '.REPLACE';
+const regExpFileResourceReplace: RegExp = /^.*[a-zA-Z0-9]{32}.REPLACE$/;
 
 export async function init(): Promise<void> {
     step0Dir = await joplin.settings.value("filesPath");
@@ -24,7 +25,6 @@ export async function deleteResources(): Promise<void> {
     let createResourcesProceed = false;
     
     for (const fullNameExt of allFiles) {
-        // console.debug(`deleteResources: fullNameExt: ${fullNameExt}`)
         let fileExt = path.extname(fullNameExt);
         let filename = path.basename(fullNameExt, fileExt);
         let filePath = path.join(step0Dir, fullNameExt);
@@ -32,20 +32,12 @@ export async function deleteResources(): Promise<void> {
         let resourceId;
         let resourceFound = false;
 
-        if ( regexpResourceId.test(filename) ) {
-            console.debug(`deleteResources: filename IS a ResourceId: ${filename}`);
-            try {
-                originalResource = await getResourceById(filename);
-                if (originalResource.items.length > 0) {
-                    resourceId = originalResource.items[0].id;
-                    console.info(`Resource found with id: ${filename}`);
-                    resourceFound = true;
-                }
-            } catch (error) {
-                console.error(`ERROR - GET Resource by id: ${filename} ${error}`);
-            }
+        if ( regExpResourceId.test(filename) ) {
+            console.debug(`deleteResources: filename IS a ResourceId so we will attempt to delete it: ${filename}`);
+            resourceId = filename;
+            resourceFound = true;
         } else {
-            console.debug(`deleteResources: filename NOT a ResourceId: ${fullNameExt}`);
+            console.debug(`deleteResources: filename NOT a ResourceId, we need the resource id: ${fullNameExt}`);
             try {
                 originalResource = await getResourceByFilename(fullNameExt);
                 if (originalResource.items.length > 0) {
@@ -67,6 +59,12 @@ export async function deleteResources(): Promise<void> {
                     let step1DirAndFile = path.join(step1Dir, fullNameExt);
                     let fileMove = await fs.move(filePath, step1DirAndFile);
                     console.info(`Resource deleted, file moved: ${fullNameExt}`);
+                    let fileResourceReplace = fullNameExt +'~'+ resourceId + fileResourceExt;
+                    console.debug(`deleteResources: fileResourceReplace: ${fileResourceReplace}`);
+                    let fileResourceReplacePath = path.join(step1Dir, fullNameExt +'~'+ resourceId + fileResourceExt);
+                    fs.ensureFileSync(fileResourceReplacePath);
+                    console.debug(`.replace file created: ${fileResourceReplacePath}`);
+
                     createResourcesProceed = true;
                 } catch (error) {
                     console.error(`ERROR - moving to replaced directory: ${error}`);
@@ -78,8 +76,6 @@ export async function deleteResources(): Promise<void> {
     };
 
     if (createResourcesProceed) {
-        const createResourcesLockFile = path.join(step1Dir, createResourcesFileName);
-        fs.ensureFileSync(createResourcesLockFile);
         let isSyncConfigured = false;
 
         try {
@@ -99,61 +95,38 @@ export async function deleteResources(): Promise<void> {
 }
 
 export async function createResources() {
-    const createResourcesLockFile = path.join(step1Dir, createResourcesFileName);
-    const createResourcesLockFileExists = fs.pathExistsSync(createResourcesLockFile);
+    const allStep1Files = await fs.readdirSync(step1Dir);
     
-    if (createResourcesLockFileExists) {
-        console.debug(`createResourcesLockFileExists: ${createResourcesLockFileExists}`);
-        const allStep1Files = await fs.readdirSync(step1Dir);
+    for (const fullNameExtReplace of allStep1Files) {
         
-        for (const fullNameExt of allStep1Files) {
-            // console.debug(`createResources: fullNameExt: ${fullNameExt}`)
-            let fileExt = path.extname(fullNameExt);
-            let filename = path.basename(fullNameExt, fileExt);
-            let step1DirAndFile = path.join(step1Dir, fullNameExt);
-            let originalResource;
-            let resourceId;
-            let resourceFound = false;
+        if ( regExpFileResourceReplace.test(fullNameExtReplace) ) {
+            console.debug(`createResources: fullNameExtReplace is a REPLACE file: ${fullNameExtReplace}`)
             
-            if ( regexpResourceId.test(filename) ) {
-                console.debug(`createResources: filename IS a ResourceId: ${filename}`);
-                resourceId = filename;
-                resourceFound = true;
-            } else {
-                console.debug(`createResources: filename NOT a ResourceId: ${fullNameExt}`);
-                try {
-                    originalResource = await getResourceByFilename(fullNameExt);
-                    if (originalResource.items.length > 0) {
-                        resourceId = originalResource.items[0].Id;
-                        console.info(`createResources: Resource found with filename: ${fullNameExt} and resourceId: ${resourceId}`);
-                        resourceFound = true;
-                    }
-                } catch (error) {
-                    console.error(`ERROR - GET Resource by filename: ${fullNameExt} ${error}`);
-                }
-            }
+            let fileExt = path.extname(fullNameExtReplace);
+            let fullName = path.basename(fullNameExtReplace, fileExt);
+            let fullNameSplit = fullName.split('~');
+            console.debug(`createResources: fullNameSplit: ${fullNameSplit}`)
+            let filenameExt = fullNameSplit[0];
+            let resourceId = fullNameSplit[1];
+            console.debug(`createResources: filenameExt: ${filenameExt} resourceId: ${resourceId}`)
+            let step1DirAndFileReplace = path.join(step1Dir, fullNameExtReplace);
+            let step1DirAndFile = path.join(step1Dir, filenameExt);
+            let step2DirAndFile = path.join(step2Dir, filenameExt);
             
-            if (resourceFound) {
-                console.debug(`createResources: resourceFound: ${resourceFound}`);
-                
+            try {
+                console.debug(`about to postResource: ${filenameExt} with resourceId ${resourceId}`);
+                let newResource = await postResource(resourceId, step1DirAndFile, filenameExt);
                 try {
-                    console.debug(`about to postResource: ${filename}`);
-                    let newResource = await postResource(resourceId, step1DirAndFile, fullNameExt);
-                } catch (error) {
-                    console.error(`ERROR - POST Resource: ${resourceId} ${error}`);
-                }
-                
-                try {
-                    let step2DirAndFile = path.join(step2Dir, fullNameExt);
                     let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
+                    let fileMoveReplace = await fs.removeSync(step1DirAndFileReplace);
                 } catch (error) {
-                    console.error(`ERROR - moving to replaced directory: ${error}`);	
-                }
-                
-                console.info(`Resource created, file moved with id: ${resourceId}`);
-            }
+                    console.error(`ERROR - moving files to step 2 directory: ${error}`);	
+                }   
+                console.info(`Resource created, file moved: ${filenameExt}`);
+            } catch (error) {
+                console.error(`ERROR - POST Resource: file: ${filenameExt} with resource id: ${resourceId} ${error}`);
+            }       
         }
-        fs.removeSync(createResourcesLockFile);
     }
 
     // Need to wait until after the above has completed

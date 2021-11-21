@@ -1,19 +1,5 @@
 import joplin from "api";
-import * as path from "path";
 
-export async function getResourceById(resourceId: string): Promise<any> {
-    return await joplin.data.get(["resources", resourceId], {
-        fields: [
-            "id",
-            "title",
-            "mime",
-            "filename",
-            "file_extension",
-            "created_time",
-            "updated_time",
-        ],
-    });
-}
 export async function getResourceByFilename(filename: string): Promise<any> {
     return await joplin.data.get(["search"], {
         query: filename,
