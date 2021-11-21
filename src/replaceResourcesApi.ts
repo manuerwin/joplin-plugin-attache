@@ -15,7 +15,9 @@ export async function getResourceById(resourceId: string): Promise<any> {
     });
 }
 export async function getResourceByFilename(filename: string): Promise<any> {
-    return await joplin.data.get(["resources", filename], {
+    return await joplin.data.get(["search"], {
+        query: filename,
+        type: "resource",
         fields: [
             "id",
             "title",

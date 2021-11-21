@@ -24,34 +24,45 @@ export async function deleteResources(): Promise<void> {
     let createResourcesProceed = false;
     
     for (const fullNameExt of allFiles) {
+        console.debug(`fullNameExt: ${fullNameExt}`)
         let fileExt = path.extname(fullNameExt);
-        let resourceId = path.basename(fullNameExt, fileExt);
+        let filename = path.basename(fullNameExt, fileExt);
         let filePath = path.join(step0Dir, fullNameExt);
         let originalResource;
+        let resourceId;
 
         if ( regexpResourceId.test(filename) ) {
             try {
-                originalResource = await getResource(resourceId);
-                console.info(`Resource found with id: ${resourceId}`);
+                originalResource = await getResourceById(filename);
+                resourceId = filename;
+                console.info(`Resource found with id: ${filename}`);
+            } catch (error) {
+                console.error(`ERROR - GET Resource by id: ${filename} ${error}`);
+            }
+        } else {
+            try {
+                originalResource = await getResourceByFilename(fullNameExt);
+                resourceId = originalResource.items[0].id;
+                console.info(`Resource found with fullNameExt: ${fullNameExt}. And Resource Id: ${resourceId}`);
+            } catch (error) {
+                console.error(`ERROR - GET Resource by fullNameExt: ${fullNameExt} ${error}`);
+            }
+        }
 
-                if (originalResource) {
-                    try {
-                        let deleteResourceStatus = await deleteResource(resourceId);
+        if (originalResource) {
+            try {
+                let deleteResourceStatus = await deleteResource(resourceId);
 
-                        try {
-                            let step1DirAndFile = path.join(step1Dir, fullNameExt);
-                            let fileMove = await fs.move(filePath, step1DirAndFile);
-                            console.info(`Resource deleted, file moved with id: ${resourceId}`);
-                            createResourcesProceed = true;
-                        } catch (error) {
-                            console.error(`ERROR - moving to replaced directory: ${error}`);
-                        }
-                    } catch (error) {
-                        console.error(`ERROR - DELETE Resource: ${resourceId} ${error}`);
-                    }
+                try {
+                    let step1DirAndFile = path.join(step1Dir, fullNameExt);
+                    let fileMove = await fs.move(filePath, step1DirAndFile);
+                    console.info(`Resource deleted, file moved: ${fullNameExt}`);
+                    createResourcesProceed = true;
+                } catch (error) {
+                    console.error(`ERROR - moving to replaced directory: ${error}`);
                 }
             } catch (error) {
-                console.error(`ERROR - GET Resource: ${resourceId} ${error}`);
+                console.error(`ERROR - DELETE Resource: ${resourceId} / ${fullNameExt} ${error}`);
             }
         }
     };
@@ -87,26 +98,41 @@ export async function createResources() {
         
         for (const fullNameExt of allStep1Files) {
             let fileExt = path.extname(fullNameExt);
-            let resourceId = path.basename(fullNameExt, fileExt);
+            let filename = path.basename(fullNameExt, fileExt);
             let step1DirAndFile = path.join(step1Dir, fullNameExt);
+            let resourceId;
             
             if ( regexpResourceId.test(filename) ) {
+                console.debug(`filename IS a ResourceId: ${filename}`);
+                resourceId = filename;
+            } else {
+                console.debug(`filename not a ResourceId: ${fullNameExt}`);
                 try {
-                    console.debug(`about to postResource: ${resourceId}`);
-                    let newResource = await postResource(resourceId, step1DirAndFile);
-                        
-                    try {
-                        let step2DirAndFile = path.join(step2Dir, fullNameExt);
-                        let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
-                    } catch (error) {
-                        console.error(`ERROR - moving to replaced directory: ${error}`);	
-                    }
-                    
-                    console.info(`Resource created, file moved with id: ${resourceId}`);
-                        
+                    let resourceByFilename = await getResourceByFilename(fullNameExt);
+                    resourceId = resourceByFilename.items[0].Id;
+                    console.info(`Resource found with fullNameExt: ${fullNameExt} and resourceId: ${resourceId}`);
+                } catch (error) {
+                    console.error(`ERROR - GET Resource by fullNameExt: ${fullNameExt} ${error}`);
+                }
+            }
+
+            if (resourceId) {
+                
+                try {
+                    console.debug(`about to postResource: ${filename}`);
+                    let newResource = await postResource(resourceId, step1DirAndFile, fullNameExt);
                 } catch (error) {
                     console.error(`ERROR - POST Resource: ${resourceId} ${error}`);
                 }
+                
+                try {
+                    let step2DirAndFile = path.join(step2Dir, fullNameExt);
+                    let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
+                } catch (error) {
+                    console.error(`ERROR - moving to replaced directory: ${error}`);	
+                }
+                
+                console.info(`Resource created, file moved with id: ${resourceId}`);
             }
         }
         fs.removeSync(createResourcesLockFile);
