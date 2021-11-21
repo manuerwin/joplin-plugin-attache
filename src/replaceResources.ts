@@ -40,10 +40,16 @@ export async function deleteResources(): Promise<void> {
             console.debug(`deleteResources: filename NOT a ResourceId, we need the resource id: ${fullNameExt}`);
             try {
                 originalResource = await getResourceByFilename(fullNameExt);
-                if (originalResource.items.length > 0) {
+                console.debug(`deleteResources: originalResource.items.length: ${originalResource.items.length}`);
+                if (originalResource.items.length == 1) {
+                    console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
                     resourceId = originalResource.items[0].id;
                     console.info(`Resource found with filename: ${fullNameExt}. Its Resource Id is: ${resourceId}`);
                     resourceFound = true;
+                } else if (originalResource.items.length > 1) {
+                    console.info(`More than one resource found with filename: ${fullNameExt}. Not proceeding.`);
+                } else {
+                    console.info(`No resource found with filename: ${fullNameExt}. Not proceeding.`);
                 }
             } catch (error) {
                 console.error(`ERROR - GET Resource by filename: ${fullNameExt} ${error}`);
