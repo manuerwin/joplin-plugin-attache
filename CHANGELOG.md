@@ -2,6 +2,10 @@
 
 ## not released
 
+## v0.13.0 [beta] (2021-11-21)
+
+Minor: resources can now also be replaced using filenames e.g. music.m3u
+
 ## v0.12.2 [beta] (2021-11-15)
 
 Patch: When no sync configured, Run on Start works.
