@@ -2,6 +2,10 @@
 
 ## not released
 
+## v0.13.1 [beta] (2021-11-21)
+
+Bumping the manifest file - no other changes
+
 ## v0.13.0 [beta] (2021-11-21)
 
 Minor: resources can now also be replaced using filenames e.g. music.m3u
