@@ -24,32 +24,42 @@ export async function deleteResources(): Promise<void> {
     let createResourcesProceed = false;
     
     for (const fullNameExt of allFiles) {
-        console.debug(`fullNameExt: ${fullNameExt}`)
+        // console.debug(`deleteResources: fullNameExt: ${fullNameExt}`)
         let fileExt = path.extname(fullNameExt);
         let filename = path.basename(fullNameExt, fileExt);
         let filePath = path.join(step0Dir, fullNameExt);
         let originalResource;
         let resourceId;
+        let resourceFound = false;
 
         if ( regexpResourceId.test(filename) ) {
+            console.debug(`deleteResources: filename IS a ResourceId: ${filename}`);
             try {
                 originalResource = await getResourceById(filename);
-                resourceId = filename;
-                console.info(`Resource found with id: ${filename}`);
+                if (originalResource.items.length > 0) {
+                    resourceId = originalResource.items[0].id;
+                    console.info(`Resource found with id: ${filename}`);
+                    resourceFound = true;
+                }
             } catch (error) {
                 console.error(`ERROR - GET Resource by id: ${filename} ${error}`);
             }
         } else {
+            console.debug(`deleteResources: filename NOT a ResourceId: ${fullNameExt}`);
             try {
                 originalResource = await getResourceByFilename(fullNameExt);
-                resourceId = originalResource.items[0].id;
-                console.info(`Resource found with fullNameExt: ${fullNameExt}. And Resource Id: ${resourceId}`);
+                if (originalResource.items.length > 0) {
+                    resourceId = originalResource.items[0].id;
+                    console.info(`Resource found with filename: ${fullNameExt}. Its Resource Id is: ${resourceId}`);
+                    resourceFound = true;
+                }
             } catch (error) {
-                console.error(`ERROR - GET Resource by fullNameExt: ${fullNameExt} ${error}`);
+                console.error(`ERROR - GET Resource by filename: ${fullNameExt} ${error}`);
             }
         }
 
-        if (originalResource) {
+        if (resourceFound) {
+            console.debug(`deleteResources: resourceFound: ${resourceFound}`);
             try {
                 let deleteResourceStatus = await deleteResource(resourceId);
 
@@ -97,26 +107,34 @@ export async function createResources() {
         const allStep1Files = await fs.readdirSync(step1Dir);
         
         for (const fullNameExt of allStep1Files) {
+            // console.debug(`createResources: fullNameExt: ${fullNameExt}`)
             let fileExt = path.extname(fullNameExt);
             let filename = path.basename(fullNameExt, fileExt);
             let step1DirAndFile = path.join(step1Dir, fullNameExt);
+            let originalResource;
             let resourceId;
+            let resourceFound = false;
             
             if ( regexpResourceId.test(filename) ) {
-                console.debug(`filename IS a ResourceId: ${filename}`);
+                console.debug(`createResources: filename IS a ResourceId: ${filename}`);
                 resourceId = filename;
+                resourceFound = true;
             } else {
-                console.debug(`filename not a ResourceId: ${fullNameExt}`);
+                console.debug(`createResources: filename NOT a ResourceId: ${fullNameExt}`);
                 try {
-                    let resourceByFilename = await getResourceByFilename(fullNameExt);
-                    resourceId = resourceByFilename.items[0].Id;
-                    console.info(`Resource found with fullNameExt: ${fullNameExt} and resourceId: ${resourceId}`);
+                    originalResource = await getResourceByFilename(fullNameExt);
+                    if (originalResource.items.length > 0) {
+                        resourceId = originalResource.items[0].Id;
+                        console.info(`createResources: Resource found with filename: ${fullNameExt} and resourceId: ${resourceId}`);
+                        resourceFound = true;
+                    }
                 } catch (error) {
-                    console.error(`ERROR - GET Resource by fullNameExt: ${fullNameExt} ${error}`);
+                    console.error(`ERROR - GET Resource by filename: ${fullNameExt} ${error}`);
                 }
             }
-
-            if (resourceId) {
+            
+            if (resourceFound) {
+                console.debug(`createResources: resourceFound: ${resourceFound}`);
                 
                 try {
                     console.debug(`about to postResource: ${filename}`);
