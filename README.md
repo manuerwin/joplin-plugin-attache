@@ -27,7 +27,12 @@ Note: due to Joplin's synchronisation conflict safeguards, this is a two-step au
 After setting the configuration settings and restarting, the file and processing sub-directories are automatically created for you.
 
 ### Step One - deleting resources and sync'ing
-Move your source files into the files path, matching the settings entry.
+Move your source files into the files path that you entered into settings. Your source files can be named in two ways:
+1) the same filename as shown in your notes (for example, music.m3u)
+2) the id of the resource (for example, b8bf831c8d804f6d8e5ab13ae12de595.jpg)
+
+IMPORTANT: If you are choosing to replace resources via filename (for example, music.m3u), you must be certain there is only one resource with that filename across all your notes. If there are more, none will be replaced.
+AND: The filename in your note must be unchanged from when you originally attached it.
 
 Choose the `Tools > Replace Resources` command.
 This will delete each matching resource within Joplin, and move each source file to the `Step 1 - Resource Deleted Sync Needed` sub-directory.
@@ -35,6 +40,8 @@ This will delete each matching resource within Joplin, and move each source file
 Important: this step has NOT updated your Notes, you will see the resource reference within any note still exists, however the preview of the note/resource will show a placeholder icon.
 
 Synchronisation is automatically started for you, you'll see remote resources being deleted.
+
+Note: a .REPLACE file is created in this sub-directory for each of the resources you are replacing, you can ignore these.
 
 ### Step Two - creating resources
 After the above synchronisation has finished, the plugin will create each resource within Joplin, and move your source file to the `Step 2 - Resource Replaced` sub-directory.
