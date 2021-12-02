@@ -1,32 +1,18 @@
 import joplin from 'api';
-import { MenuItemLocation } from "api/types";
-import { settings } from "./settings";
-import { init, deleteResources, createResources, syncConfiguredAndRunOnStart } from './replaceResources';
+import { init, syncConfiguredAndRunOnStart } from './replaceResources';
+import { createMenuItems, onSyncCompleteEvent, registerSettings, registerCommand } from './setup';
 
 joplin.plugins.register({
 	onStart: async function () {
-		await settings.register();
+		await registerSettings();
 
 		await init();
 
-		await joplin.commands.register({
-			name: "ReplaceResources",
-			label: "Replace Resources",
-			execute: async () => {
-				await deleteResources();
-			}
-		});
+		await registerCommand();
 
-		joplin.workspace.onSyncComplete(async (event: any) => {
-			console.debug(`onSyncComplete event has occurred, about to call createResources`);
-			await createResources();
-		});
+		await onSyncCompleteEvent();
 		
-		await joplin.views.menuItems.create(
-			"myMenuItemToolsReplaceResources",
-			"ReplaceResources",  
-			MenuItemLocation.Tools
-		);
+		await createMenuItems();
 		
 		await syncConfiguredAndRunOnStart();
 	},
