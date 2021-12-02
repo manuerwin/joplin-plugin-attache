@@ -1,5 +1,17 @@
 import joplin from "api";
 
+export async function filesPathSetting(): Promise<string> {   
+    return await joplin.settings.value("filesPath");
+}
+
+export async function syncTargetGlobalSetting(): Promise<number> {
+    return await joplin.settings.globalValue("sync.target");
+}
+
+export async function runOnStartAndAfterSyncSetting(): Promise<boolean> {
+    return await joplin.settings.value("runOnStartAndAfterSync");
+}
+
 export async function getResourceByFilename(filename: string): Promise<any> {
     return await joplin.data.get(["search"], {
         query: filename,

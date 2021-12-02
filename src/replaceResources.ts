@@ -1,4 +1,4 @@
-import { deleteResource, postResource, executeSync, getResourceByFilename } from "./replaceResourcesApi";
+import { deleteResource, postResource, executeSync, getResourceByFilename, filesPathSetting, syncTargetGlobalSetting, runOnStartAndAfterSyncSetting } from "./replaceResourcesApi";
 import joplin from "api";
 import * as path from "path";
 import * as fs from "fs-extra";
@@ -11,7 +11,7 @@ const fileResourceExt = '.REPLACE';
 const regExpFileResourceReplace: RegExp = /^.*[a-zA-Z0-9]{32}.REPLACE$/;
 
 export async function init(): Promise<void> {
-    step0Dir = await joplin.settings.value("filesPath");
+    step0Dir = await filesPathSetting();
     await fs.ensureDir(step0Dir);
     step1Dir = path.join(step0Dir, "Step 1 - Resource Deleted Sync Needed");
     await fs.ensureDir(step1Dir);
@@ -146,7 +146,7 @@ export async function createResources() {
 
 export async function syncConfigured(): Promise<boolean> {
     // Per https://joplinapp.org/schema/settings.json
-    let syncTargetValue = await joplin.settings.globalValue("sync.target");
+    let syncTargetValue = await syncTargetGlobalSetting();
     console.debug(`syncTargetValue: ${syncTargetValue}`);
     
     if (syncTargetValue > 0) {
@@ -159,7 +159,7 @@ export async function syncConfigured(): Promise<boolean> {
 }
 
 export async function runOnStartAndAfterSync(): Promise<boolean> {
-    let runOnStartValue = await joplin.settings.value("runOnStartAndAfterSync");
+    let runOnStartValue = runOnStartAndAfterSyncSetting();
     console.debug(`runOnStartValue: ${runOnStartValue}`);
     return runOnStartValue;
 }
