@@ -1,5 +1,4 @@
 import { deleteResource, postResource, executeSync, getResourceByFilename, filesPathSetting, syncTargetGlobalSetting, runOnStartAndAfterSyncSetting } from "./replaceResourcesApi";
-import joplin from "api";
 import * as path from "path";
 import * as fs from "fs-extra";
 
