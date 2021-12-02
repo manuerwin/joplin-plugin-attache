@@ -136,7 +136,7 @@ export async function createResources() {
     }
 
     // Need to wait until after the above has completed
-    let isRunOnStartAndAfterSync = await runOnStartAndAfterSync();
+    let isRunOnStartAndAfterSync = await runOnStartAndAfterSyncSetting();
     console.debug(`isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
     if (isRunOnStartAndAfterSync) {
         let isRunOnStartAndAfterSyncExec = await deleteResources();
@@ -158,16 +158,10 @@ export async function syncConfigured(): Promise<boolean> {
     return false;
 }
 
-export async function runOnStartAndAfterSync(): Promise<boolean> {
-    let runOnStartValue = runOnStartAndAfterSyncSetting();
-    console.debug(`runOnStartValue: ${runOnStartValue}`);
-    return runOnStartValue;
-}
-
 export async function syncConfiguredAndRunOnStart() {
     let isSyncConfigured = await syncConfigured();
     console.debug(`isSyncConfigured: ${isSyncConfigured}`);
-    let isRunOnStartAndAfterSync = await runOnStartAndAfterSync();
+    let isRunOnStartAndAfterSync = await runOnStartAndAfterSyncSetting();
     console.debug(`isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
 
     if (!isSyncConfigured && isRunOnStartAndAfterSync) {
