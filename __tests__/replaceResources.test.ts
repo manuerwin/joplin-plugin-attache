@@ -1,10 +1,9 @@
 import joplin from 'api';
 import * as path from "path";
 import * as fs from "fs-extra";
-import { deleteResource, postResource } from '../src/replaceResourcesApi';
-import { deleteResources, init, createResources } from '../src/replaceResources';
-
-// jest.mock('postResource');
+import { init } from '../src/replaceResources';
+import { createMenuItems, onSyncCompleteEvent, registerCommand, registerSettings } from '../src/replaceResourcesSetup';
+import { deleteResource, filesPathSetting, postResource, setFilesPathValue } from '../src/replaceResourcesApi';
 
 const testBaseDir = path.join(__dirname, "ReplaceResourcesTest");
 const sourceFilesDir = path.join(__dirname, "ReplaceResourcesSourceFiles");
@@ -15,97 +14,86 @@ const resourceIds = [
   "FilenameDOESxxxMatchExistingId02"
 ]
 
+jest.mock('../src/replaceResourcesApi', () => {
+  return {
+    setFilesPathValue: jest.fn(),
+    filesPathSetting: jest.fn(),
+    syncTargetGlobalSetting: jest.fn(),
+    runOnStartAndAfterSyncSetting: jest.fn(),
+    getResourceByFilename: jest.fn(),
+    deleteResource: jest.fn(),
+    postResource: jest.fn(),
+    executeSync: jest.fn(),
+  }
+});
+
+jest.mock('../src/replaceResourcesSetup', () => {
+  return {
+    registerSettings: jest.fn(),
+    registerCommand: jest.fn(),
+    onSyncCompleteEvent: jest.fn(),
+    createMenuItems: jest.fn(),
+  }
+});
+
 describe("Replace Resources", function () {
   beforeAll(async () => {
-    // console.debug(`BeforeAll: set filesPath and create source files`);
-    // try {
-      console.debug(`testBaseDir: ${testBaseDir}`);
-      // I "think" I need to mock the below, as per the debug it returns a number instead of the desired setting value?
-      await joplin.settings.setValue("filesPath", testBaseDir);
-      let testBaseDirSettingValue = await joplin.settings.value("filesPath");
-      console.debug(`testBaseDirSettingValue: ${testBaseDirSettingValue}`);
-
-      // I "think" I need to mock the below?
-    //   await init();
-
-    // } catch (error) {
-    //   console.error(`filesPath setting ${testBaseDir} error: ${error}`);
-    // }
-
+    console.debug(`BeforeAll-testBaseDir: ${testBaseDir}`);
+    await setFilesPathValue(testBaseDir);
+    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
+    mockFilesPathSetting.mockResolvedValue(testBaseDir);
+    let testBaseDirSettingValue = await filesPathSetting();
+    console.debug(`BeforeAll-testBaseDirSettingValue: ${testBaseDirSettingValue}`);
+    expect(testBaseDirSettingValue).toBe(testBaseDir);
+    
     fs.emptyDirSync(sourceFilesDir);
     expect(fs.pathExistsSync(sourceFilesDir)).toBe(true);
-
+    
     for (const resourceId of resourceIds) {
       let fileX = path.join(sourceFilesDir, resourceId + fileExt);
       fs.writeFileSync(fileX, "file");
       expect(fs.existsSync(fileX)).toBe(true);   
     }
   });
-
+  
   beforeEach(async () => {
     fs.emptyDirSync(testBaseDir);
+    await init();
     fs.copySync(sourceFilesDir, testBaseDir)
-
-    for (const resourceId of resourceIds) {
-      let newResourceData = {
-        id: resourceId,
-        title: resourceId,
-      };
-
-      let fileX = path.join(testBaseDir, resourceId + fileExt);
-
-      try {
-        // I don't think this actually creates a resource? As it's rediected to apiMock.js
-        let newResource = await postResource(resourceId, fileX, resourceId);
-    } catch (error) {
-        console.error(`Test resource creation error: ${error}`);
-    }
-}
-// console.debug(`BeforeEach: Source files copied into test dir and resources created`);
-});
-
-afterEach(async () => {
+    console.debug(`BeforeEach: Source files copied into test dir`);
+  });
+  
+  afterEach(async () => {
     fs.removeSync(testBaseDir);
-    for (const resourceId of resourceIds) {
-        try {
-        // I don't think this actually creates a resource? As it's rediected to apiMock.js
-        let deleteRes = await deleteResource(resourceId);
-      } catch (error) {
-        console.error(`Test resource delete error: ${error}`);
-      }
-    }
+    console.debug(`AfterEach: test dir removed`);
   });
 
   afterAll(async () => {
     fs.removeSync(sourceFilesDir);
-    // console.debug(`AfterAll: Source files removed`);
+    console.debug(`AfterAll: Source files removed`);
   });
 
-  test('Placeholder test until figure out how to mock', async () => {
-      expect(true).toEqual(true);
-  });
-
-//   test(`Sync IS enabled, file does NOT match existing resource`, async () => {
-//       // console.debug(`ENTER: Filename does NOT match existing resource id, should NOT have been moved`);
-//       const idNoMatch = "FilenameDoesNotMatchExistingId42";
-//       const fileNoMatch = path.join(testBaseDir, idNoMatch + fileExt);
-//       fs.writeFileSync(fileNoMatch, "file");
-//       expect(fs.existsSync(fileNoMatch)).toBe(true);
+  test(`Sync IS enabled, file does NOT match existing resource`, async () => {
+      // console.debug(`ENTER: Filename does NOT match existing resource id, should NOT have been moved`);
+      const idNoMatch = "FilenameDoesNotMatchExistingId42";
+      const fileNoMatch = path.join(testBaseDir, idNoMatch + fileExt);
+      fs.writeFileSync(fileNoMatch, "file");
+      expect(fs.existsSync(fileNoMatch)).toBe(true);
       
-//       try {
-//           //   let replaceExec = await execute();
-//           // console.debug(`About to call createResources`);
-//           // createResources();
-//         } catch (error) {
-//             console.error(`Replace execute error: ${error}`);
-//         }
+      try {
+          //   let replaceExec = await execute();
+          // console.debug(`About to call createResources`);
+          // createResources();
+        } catch (error) {
+            console.error(`Replace execute error: ${error}`);
+        }
         
-//         expect(fs.existsSync(fileNoMatch)).toBe(true);
-//         // expect - Error: "Resource not found for filename/id"
-//         // expect - File is NOT removed from source folder
-//         // expect - Synchronisation does NOT run
-//         // expect - New resource is NOT created
-//     });
+        expect(fs.existsSync(fileNoMatch)).toBe(true);
+        // expect - Error: "Resource not found for filename/id"
+        // expect - File is NOT removed from source folder
+        // expect - Synchronisation does NOT run
+        // expect - New resource is NOT created
+    });
     
     // test(`Sync IS enabled, file DOES match existing resource`, async () => {
 //     // console.debug(`ENTER: Filename does match existing resource id, should have been moved`);
