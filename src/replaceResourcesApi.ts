@@ -1,5 +1,9 @@
 import joplin from "api";
 
+export async function setFilesPathValue(filesPathValue: string): Promise<void> {
+    await joplin.settings.setValue("filesPath", filesPathValue);
+}
+
 export async function filesPathSetting(): Promise<string> {   
     return await joplin.settings.value("filesPath");
 }
