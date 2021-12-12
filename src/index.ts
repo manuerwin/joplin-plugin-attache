@@ -1,6 +1,6 @@
 import joplin from 'api';
 import { init, syncConfiguredAndRunOnStart } from './replaceResources';
-import { createMenuItems, onSyncCompleteEvent, registerSettings, registerCommand } from './setup';
+import { createMenuItems, onSyncCompleteEvent, registerSettings, registerCommand } from './replaceResourcesSetup';
 
 joplin.plugins.register({
 	onStart: async function () {
