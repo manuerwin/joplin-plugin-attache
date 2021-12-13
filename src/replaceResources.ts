@@ -29,12 +29,12 @@ export async function deleteResources(): Promise<void> {
         let filePath = path.join(step0Dir, fullNameExt);
         let originalResource;
         let resourceId;
-        let resourceFound = false;
+        let deleteProceed = false;
 
         if ( regExpResourceId.test(filename) ) {
             console.debug(`deleteResources: filename IS a ResourceId so we will attempt to delete it: ${filename}`);
             resourceId = filename;
-            resourceFound = true;
+            deleteProceed = true;
         } else {
             console.debug(`deleteResources: filename NOT a ResourceId, we need the resource id: ${fullNameExt}`);
             try {
@@ -44,7 +44,7 @@ export async function deleteResources(): Promise<void> {
                     console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
                     resourceId = originalResource.items[0].id;
                     console.info(`Resource found with filename: ${fullNameExt}. Its Resource Id is: ${resourceId}`);
-                    resourceFound = true;
+                    deleteProceed = true;
                 } else if (originalResource.items.length > 1) {
                     console.info(`More than one resource found with filename: ${fullNameExt}. Not proceeding.`);
                 } else {
@@ -55,8 +55,8 @@ export async function deleteResources(): Promise<void> {
             }
         }
 
-        if (resourceFound) {
-            console.debug(`deleteResources: resourceFound: ${resourceFound}`);
+        if (deleteProceed) {
+            console.debug(`deleteResources: deleteProceed: ${deleteProceed}`);
             try {
                 let deleteResourceStatus = await deleteResource(resourceId);
 
