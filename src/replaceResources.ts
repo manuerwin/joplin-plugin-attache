@@ -68,7 +68,7 @@ export async function deleteResources(): Promise<void> {
                     console.debug(`deleteResources: fileResourceReplace: ${fileResourceReplace}`);
                     let fileResourceReplacePath = path.join(step1Dir, fullNameExt +'~'+ resourceId + fileResourceExt);
                     fs.ensureFileSync(fileResourceReplacePath);
-                    console.debug(`.replace file created: ${fileResourceReplacePath}`);
+                    console.debug(`.replace file moved: ${fileResourceReplacePath}`);
 
                     createResourcesProceed = true;
                 } catch (error) {
