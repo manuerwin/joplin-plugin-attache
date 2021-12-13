@@ -143,20 +143,6 @@ export async function createResources() {
 
 }
 
-export async function syncConfigured(): Promise<boolean> {
-    // Per https://joplinapp.org/schema/settings.json
-    let syncTargetValue = await syncTargetGlobalSetting();
-    console.debug(`syncTargetValue: ${syncTargetValue}`);
-    
-    if (syncTargetValue > 0) {
-        console.debug(`syncTargetValue > 0`);
-        return true;
-    }
-    
-    console.debug(`DEFAULT return false`);
-    return false;
-}
-
 export async function syncConfiguredAndRunOnStart() {
     let isSyncConfigured = await syncConfigured();
     console.debug(`isSyncConfigured: ${isSyncConfigured}`);

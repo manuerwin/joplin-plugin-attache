@@ -16,6 +16,20 @@ export async function runOnStartAndAfterSyncSetting(): Promise<boolean> {
     return await joplin.settings.value("runOnStartAndAfterSync");
 }
 
+export async function syncConfigured(): Promise<boolean> {
+    // Per https://joplinapp.org/schema/settings.json
+    let syncTargetValue = await syncTargetGlobalSetting();
+    console.debug(`syncTargetValue: ${syncTargetValue}`);
+    
+    if (syncTargetValue > 0) {
+        console.debug(`syncTargetValue > 0`);
+        return true;
+    }
+    
+    console.debug(`DEFAULT return false`);
+    return false;
+}
+
 export async function getResourceByFilename(filename: string): Promise<any> {
     return await joplin.data.get(["search"], {
         query: filename,
