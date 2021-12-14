@@ -82,8 +82,7 @@ describe("Replace Resources", function () {
     });
 
     await deleteResources();
-    // Only called twice for the foldernames
-    expect(getResourceByFilename).toHaveBeenCalledTimes(2);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(0);
     expect(mockdeleteResource).toThrowError();
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
@@ -106,8 +105,7 @@ describe("Replace Resources", function () {
     });
 
     await deleteResources();
-    // Called thrice for the foldernames + the file
-    expect(getResourceByFilename).toHaveBeenCalledTimes(3);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
     expect(mockdeleteResource).toThrowError();
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
@@ -125,8 +123,7 @@ describe("Replace Resources", function () {
     mockdeleteResource.mockResolvedValue(true);
 
     await deleteResources();
-    // Only called twice for the foldernames
-    expect(getResourceByFilename).toHaveBeenCalledTimes(2);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(0);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(1);
@@ -166,8 +163,7 @@ describe("Replace Resources", function () {
     mockdeleteResource.mockResolvedValue(true);
 
     await deleteResources();
-    // Called thrice for the foldernames
-    expect(getResourceByFilename).toHaveBeenCalledTimes(3);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(1);
     expect(postResource).toHaveBeenCalledTimes(1);

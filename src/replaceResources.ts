@@ -8,13 +8,15 @@ let step2Dir;
 const regExpResourceId: RegExp = /^[a-zA-Z0-9]{32}$/;
 const fileResourceExt = '.REPLACE';
 const regExpFileResourceReplace: RegExp = /^.*[a-zA-Z0-9]{32}.REPLACE$/;
+const step1DirName = "Step 1 - Resource Deleted Sync Needed";
+const step2DirName = "Step 2 - Resource Replaced";
 
 export async function init(): Promise<void> {
     step0Dir = await filesPathSetting();
     await fs.ensureDir(step0Dir);
-    step1Dir = path.join(step0Dir, "Step 1 - Resource Deleted Sync Needed");
+    step1Dir = path.join(step0Dir, step1DirName);
     await fs.ensureDir(step1Dir);
-    step2Dir = path.join(step0Dir, "Step 2 - Resource Replaced");
+    step2Dir = path.join(step0Dir, step2DirName);
     await fs.ensureDir(step2Dir);
     console.info(`Replace Resources plugin started, files and directories exist at ${step0Dir}`);
 }
@@ -31,28 +33,30 @@ export async function deleteResources(): Promise<void> {
         let resourceId;
         let deleteProceed = false;
 
-        if ( regExpResourceId.test(filename) ) {
-            console.debug(`deleteResources: filename IS a ResourceId so we will attempt to delete it: ${filename}`);
-            resourceId = filename;
-            deleteProceed = true;
-        } else {
-            console.debug(`deleteResources: filename NOT a ResourceId, we need the resource id: ${fullNameExt}`);
-            try {
-                originalResource = await getResourceByFilename(fullNameExt);
-                console.debug(`deleteResources: originalResource.items.length: ${originalResource.items.length}`);
-                if (originalResource.items.length == 1) {
-                    console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
-                    resourceId = originalResource.items[0].id;
-                    console.info(`Resource found with filename: ${fullNameExt}. Its Resource Id is: ${resourceId}`);
-                    deleteProceed = true;
-                } else if (originalResource.items.length > 1) {
-                    console.debug(`deleteResources: originalResource.items.length > 1: ${originalResource.items.length}`);
-                    console.info(`More than one resource found with filename: ${fullNameExt}. Not proceeding.`);
-                } else {
-                    console.info(`No resource found with filename: ${fullNameExt}. Not proceeding.`);
+        if ( filename != step1DirName && filename != step2DirName ) {
+            if ( regExpResourceId.test(filename) ) {
+                console.debug(`deleteResources: filename IS a ResourceId so we will attempt to delete it: ${filename}`);
+                resourceId = filename;
+                deleteProceed = true;
+            } else {
+                console.debug(`deleteResources: filename NOT a ResourceId, we need the resource id: ${fullNameExt}`);
+                try {
+                    originalResource = await getResourceByFilename(fullNameExt);
+                    console.debug(`deleteResources: originalResource.items.length: ${originalResource.items.length}`);
+                    if (originalResource.items.length == 1) {
+                        console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
+                        resourceId = originalResource.items[0].id;
+                        console.info(`Resource found with filename: ${fullNameExt}. Its Resource Id is: ${resourceId}`);
+                        deleteProceed = true;
+                    } else if (originalResource.items.length > 1) {
+                        console.debug(`deleteResources: originalResource.items.length > 1: ${originalResource.items.length}`);
+                        console.info(`More than one resource found with filename: ${fullNameExt}. Not proceeding.`);
+                    } else {
+                        console.info(`No resource found with filename: ${fullNameExt}. Not proceeding.`);
+                    }
+                } catch (error) {
+                    console.error(`ERROR - GET Resource by filename: ${fullNameExt} ${error}`);
                 }
-            } catch (error) {
-                console.error(`ERROR - GET Resource by filename: ${fullNameExt} ${error}`);
             }
         }
 
