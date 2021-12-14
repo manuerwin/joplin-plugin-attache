@@ -1,31 +1,18 @@
 import joplin from 'api';
 import * as path from "path";
 import * as fs from "fs-extra";
-import { init } from '../src/replaceResources';
-import { createMenuItems, onSyncCompleteEvent, registerCommand, registerSettings } from '../src/replaceResourcesSetup';
-import { deleteResource, filesPathSetting, postResource, setFilesPathValue } from '../src/replaceResourcesApi';
+import { init, deleteResources, createResources } from '../src/replaceResources';
+// import { createMenuItems, onSyncCompleteEvent, registerCommand, registerSettings } from '../src/replaceResourcesSetup';
+import { deleteResource, filesPathSetting, getResourceByFilename, syncConfigured, postResource, setFilesPathValue, executeSync } from '../src/replaceResourcesApi';
+import { string } from 'yargs';
 
 const testBaseDir = path.join(__dirname, "ReplaceResourcesTest");
 const sourceFilesDir = path.join(__dirname, "ReplaceResourcesSourceFiles");
 const fileExt = ".png";
 const resourceIds = [
-  "FilenameDoesNOTMatchExistingId00",
   "FilenameDOESxxxMatchExistingId01",
   "FilenameDOESxxxMatchExistingId02"
 ]
-
-jest.mock('../src/replaceResourcesApi', () => {
-  return {
-    setFilesPathValue: jest.fn(),
-    filesPathSetting: jest.fn(),
-    syncTargetGlobalSetting: jest.fn(),
-    runOnStartAndAfterSyncSetting: jest.fn(),
-    getResourceByFilename: jest.fn(),
-    deleteResource: jest.fn(),
-    postResource: jest.fn(),
-    executeSync: jest.fn(),
-  }
-});
 
 jest.mock('../src/replaceResourcesSetup', () => {
   return {
@@ -35,15 +22,28 @@ jest.mock('../src/replaceResourcesSetup', () => {
     createMenuItems: jest.fn(),
   }
 });
+  
+jest.mock('../src/replaceResourcesApi', () => {
+  return {
+    setFilesPathValue: jest.fn(),
+    filesPathSetting: jest.fn(),
+    syncTargetGlobalSetting: jest.fn(),
+    runOnStartAndAfterSyncSetting: jest.fn(),
+    syncConfigured: jest.fn(),
+    getResourceByFilename: jest.fn(),
+    deleteResource: jest.fn(),
+    postResource: jest.fn(),
+    executeSync: jest.fn(),
+  }
+});
+    // syncConfiguredAndRunOnStart: jest.fn(),
 
 describe("Replace Resources", function () {
   beforeAll(async () => {
-    console.debug(`BeforeAll-testBaseDir: ${testBaseDir}`);
     await setFilesPathValue(testBaseDir);
     const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
     mockFilesPathSetting.mockResolvedValue(testBaseDir);
     let testBaseDirSettingValue = await filesPathSetting();
-    console.debug(`BeforeAll-testBaseDirSettingValue: ${testBaseDirSettingValue}`);
     expect(testBaseDirSettingValue).toBe(testBaseDir);
     
     fs.emptyDirSync(sourceFilesDir);
@@ -57,72 +57,121 @@ describe("Replace Resources", function () {
   });
   
   beforeEach(async () => {
+    jest.clearAllMocks();
     fs.emptyDirSync(testBaseDir);
     await init();
-    fs.copySync(sourceFilesDir, testBaseDir)
-    console.debug(`BeforeEach: Source files copied into test dir`);
   });
   
   afterEach(async () => {
     fs.removeSync(testBaseDir);
-    console.debug(`AfterEach: test dir removed`);
   });
 
   afterAll(async () => {
     fs.removeSync(sourceFilesDir);
-    console.debug(`AfterAll: Source files removed`);
   });
 
-  test(`Sync IS enabled, file does NOT match existing resource`, async () => {
-      // console.debug(`ENTER: Filename does NOT match existing resource id, should NOT have been moved`);
-      const idNoMatch = "FilenameDoesNotMatchExistingId42";
-      const fileNoMatch = path.join(testBaseDir, idNoMatch + fileExt);
-      fs.writeFileSync(fileNoMatch, "file");
-      expect(fs.existsSync(fileNoMatch)).toBe(true);
-      
-      try {
-          //   let replaceExec = await execute();
-          // console.debug(`About to call createResources`);
-          // createResources();
-        } catch (error) {
-            console.error(`Replace execute error: ${error}`);
-        }
-        
-        expect(fs.existsSync(fileNoMatch)).toBe(true);
-        // expect - Error: "Resource not found for filename/id"
-        // expect - File is NOT removed from source folder
-        // expect - Synchronisation does NOT run
-        // expect - New resource is NOT created
+  test(`VALID file format does NOT match resource + sync config either enabled or disabled`, async () => {
+    const fileName = "FilenameDoesNotMatchExistingId42";
+    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+    fs.writeFileSync(filePathExt, "file");
+    expect(fs.existsSync(filePathExt)).toBe(true);
+          
+    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    mockdeleteResource.mockImplementation( () => {
+      throw new Error();
     });
+
+    await deleteResources();
+    // Only called twice for the foldernames
+    expect(getResourceByFilename).toHaveBeenCalledTimes(2);
+    expect(mockdeleteResource).toThrowError();
+    expect(executeSync).toHaveBeenCalledTimes(0);
+    expect(postResource).toHaveBeenCalledTimes(0);
+    expect(fs.existsSync(filePathExt)).toBe(true);
+    // expect - Error: "Resource not found for filename/id"
+  });
+
+  test(`INVALID file format does NOT match resource + sync config either enabled or disabled`, async () => {
+    const fileName = "invalidFileFormat";
+    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+    fs.writeFileSync(filePathExt, "file");
+    expect(fs.existsSync(filePathExt)).toBe(true);
     
-    // test(`Sync IS enabled, file DOES match existing resource`, async () => {
-//     // console.debug(`ENTER: Filename does match existing resource id, should have been moved`);
-//     const idMatch = resourceIds[1];
-//     const fileMatch = path.join(testBaseDir, idMatch + fileExt);
-//     fs.writeFileSync(fileMatch, "file");
-//     expect(fs.existsSync(fileMatch)).toBe(true);
+    const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    mockgetResourceByFilename.mockResolvedValue(null);
 
-//     try {
-//     //   let replaceExec = await execute();
-//       // console.debug(`About to call createResources`);
-//       // createResources();
-//     } catch (error) {
-//       console.error(`Replace execute error: ${error}`);
-//     }
+    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    mockdeleteResource.mockImplementation( () => {
+      throw new Error();
+    });
 
-// Expect - Existing resource is deleted
-// Expect - File IS removed from source folder
-// Expect - Synchronisation DOES run
-// Expect - New Resource IS created with original id
+    await deleteResources();
+    // Called thrice for the foldernames + the file
+    expect(getResourceByFilename).toHaveBeenCalledTimes(3);
+    expect(mockdeleteResource).toThrowError();
+    expect(executeSync).toHaveBeenCalledTimes(0);
+    expect(postResource).toHaveBeenCalledTimes(0);
+    expect(fs.existsSync(filePathExt)).toBe(true);
+    // expect - Error: "Resource not found for filename/id"
+  });
 
-//     expect(fs.existsSync(fileMatch)).toBe(false);
-//   });
+  test(`VALID file format DOES match resource + sync config disabled`, async () => {
+    const fileName = "FilenameDOESxxxMatchExistingId01";
+    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+    fs.writeFileSync(filePathExt, "file");
+    expect(fs.existsSync(filePathExt)).toBe(true);
+          
+    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    mockdeleteResource.mockResolvedValue(true);
 
-// test(`Sync is NOT enabled, file DOES match existing resource`, async () => {
-    
-    // Expect - Existing resource is deleted
-    // Expect - File IS removed from source folder
-    // Expect - Synchronisation does NOT run
-    // Expect - New Resource IS created with original id
-// });
+    await deleteResources();
+    // Only called twice for the foldernames
+    expect(getResourceByFilename).toHaveBeenCalledTimes(2);
+    expect(deleteResource).toHaveBeenCalledTimes(1);
+    expect(executeSync).toHaveBeenCalledTimes(0);
+    expect(postResource).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(filePathExt)).toBe(false);
+    // expect - Error: "Resource not found for filename/id"
+  });
+  
+  test(`INVALID file format DOES match resource + sync config enabled`, async () => {
+    const fileName = "invalidFileFormatDOESmatch";
+    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+    fs.writeFileSync(filePathExt, "file");
+    expect(fs.existsSync(filePathExt)).toBe(true);
+
+    const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+
+    interface resourceByFileName {
+      id: string;
+    };
+    interface apiSearchResult {
+      items: resourceByFileName[];
+    };
+    let resourceReturned: resourceByFileName = {
+      id: 'FilenameDOESxxxMatchExistingId02'
+    };
+    let itemsReturned = new Array<resourceByFileName>(resourceReturned);
+    console.debug(`itemsReturned: ${itemsReturned}`);
+    console.debug(`itemsReturned.length: ${itemsReturned.length}`);
+    console.debug(`itemsReturned[0]: ${itemsReturned[0]}`);
+    console.debug(`itemsReturned[0].id: ${itemsReturned[0].id}`);
+
+    let resultsReturned: apiSearchResult = {
+      items: itemsReturned,
+    };
+    mockgetResourceByFilename.mockResolvedValue({ resultsReturned });
+
+    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    mockdeleteResource.mockResolvedValue(true);
+
+    await deleteResources();
+    // Called thrice for the foldernames
+    expect(getResourceByFilename).toHaveBeenCalledTimes(3);
+    expect(deleteResource).toHaveBeenCalledTimes(1);
+    expect(executeSync).toHaveBeenCalledTimes(1);
+    expect(postResource).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(filePathExt)).toBe(false);
+    // expect - Error: "Resource not found for filename/id"
+  });
 });
