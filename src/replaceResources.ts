@@ -42,7 +42,6 @@ export async function deleteResources(): Promise<void> {
                 console.debug(`deleteResources: filename NOT a ResourceId, we need the resource id: ${fullNameExt}`);
                 try {
                     originalResource = await getResourceByFilename(fullNameExt);
-                    console.debug(`deleteResources: originalResource.items.length: ${originalResource.items.length}`);
                     if (originalResource.items.length == 1) {
                         console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
                         resourceId = originalResource.items[0].id;
@@ -115,10 +114,8 @@ export async function createResources() {
             let fileExt = path.extname(fullNameExtReplace);
             let fullName = path.basename(fullNameExtReplace, fileExt);
             let fullNameSplit = fullName.split('~');
-            console.debug(`createResources: fullNameSplit: ${fullNameSplit}`)
             let filenameExt = fullNameSplit[0];
             let resourceId = fullNameSplit[1];
-            console.debug(`createResources: filenameExt: ${filenameExt} resourceId: ${resourceId}`)
             let step1DirAndFileReplace = path.join(step1Dir, fullNameExtReplace);
             let step1DirAndFile = path.join(step1Dir, filenameExt);
             let step2DirAndFile = path.join(step2Dir, filenameExt);
