@@ -46,6 +46,7 @@ export async function deleteResources(): Promise<void> {
                     console.info(`Resource found with filename: ${fullNameExt}. Its Resource Id is: ${resourceId}`);
                     deleteProceed = true;
                 } else if (originalResource.items.length > 1) {
+                    console.debug(`deleteResources: originalResource.items.length > 1: ${originalResource.items.length}`);
                     console.info(`More than one resource found with filename: ${fullNameExt}. Not proceeding.`);
                 } else {
                     console.info(`No resource found with filename: ${fullNameExt}. Not proceeding.`);
