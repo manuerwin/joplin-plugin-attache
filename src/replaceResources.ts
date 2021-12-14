@@ -1,4 +1,4 @@
-import { deleteResource, postResource, executeSync, getResourceByFilename, filesPathSetting, syncTargetGlobalSetting, runOnStartAndAfterSyncSetting } from "./replaceResourcesApi";
+import { deleteResource, postResource, executeSync, getResourceByFilename, filesPathSetting, syncConfigured, runOnStartAndAfterSyncSetting } from "./replaceResourcesApi";
 import * as path from "path";
 import * as fs from "fs-extra";
 
