@@ -204,10 +204,12 @@ describe("Replace Resources", function () {
     await syncConfiguredAndRunOnStart();
     expect(syncConfigured).toHaveBeenCalledTimes(1);
     expect(syncConfigured).toBeTruthy();
+    await deleteResources();
     expect(getResourceByFilename).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(syncConfigured).toHaveBeenCalledTimes(2);
     expect(executeSync).toHaveBeenCalledTimes(1);
+    await createResources();
     expect(postResource).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(filePathExt)).toBe(false);
     // expect - Error: "Resource not found for filename/id"
