@@ -12,7 +12,7 @@ A Joplin Plugin that mass replaces Resources.
 
 ## Manual
 
-- Download the latest released JPL package (`io.github.manuerwin.replaceresources.jpl`) from [here](https://github.com/manuerwin/joplin-plugin-replace-resources/releases/latest)
+- Download the latest released JPL package (`io.github.manuerwin.attache.jpl`) from [here](https://github.com/manuerwin/joplin-plugin-attache/releases/latest)
 - Close Joplin
 - Copy the downloaded JPL package into your profile `plugins` folder
 - Start Joplin
