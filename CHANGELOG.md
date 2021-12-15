@@ -2,6 +2,10 @@
 
 ## not released
 
+## v1.0.0 (2021-12-15)
+
+Major version - name change from Replace Resources to Attaché
+
 ## v0.13.1 [beta] (2021-11-21)
 
 Bumping the manifest file - no other changes

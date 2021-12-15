@@ -18,7 +18,7 @@ export async function init(): Promise<void> {
     await fs.ensureDir(step1Dir);
     step2Dir = path.join(step0Dir, step2DirName);
     await fs.ensureDir(step2Dir);
-    console.info(`Replace Resources plugin started, files and directories exist at ${step0Dir}`);
+    console.info(`Attaché plugin started, files and directories exist at ${step0Dir}`);
 }
 
 export async function deleteResources(): Promise<void> {

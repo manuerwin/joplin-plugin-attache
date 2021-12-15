@@ -5,7 +5,7 @@ import { createResources, deleteResources } from "./replaceResources";
 
 export async function registerSettings(): Promise<void> {
   await joplin.settings.registerSection("replaceResourcesSection", {
-    label: "Replace Resources",
+    label: "Attaché",
     iconName: "fas fa-exchange-alt",
   });
 
@@ -27,7 +27,7 @@ export async function registerSettings(): Promise<void> {
       section: "replaceResourcesSection",
       public: true,
       label: "Run on start and after sync",
-      description: "If checked true, Replace Resources will run immediately after Joplin starts and after each synchronisation. The default value is unchecked (false).",
+      description: "If checked true, Attaché will run immediately after Joplin starts and after each synchronisation. The default value is unchecked (false).",
     },
   });
 }
@@ -35,7 +35,7 @@ export async function registerSettings(): Promise<void> {
 export async function registerCommand(): Promise<void> {    
     await joplin.commands.register({
         name: "ReplaceResources",
-        label: "Replace Resources",
+        label: "Attaché",
         execute: async () => {
             await deleteResources();
         }

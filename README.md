@@ -1,4 +1,4 @@
-# Replace Resources
+# Attaché
 A Joplin Plugin that mass replaces Resources.
 
 # Installation
@@ -6,7 +6,7 @@ A Joplin Plugin that mass replaces Resources.
 ## Automatic
 
 - Go to `Preferences > Plugins` (Mac) OR `Tools > Options > Plugins`
-- Search for `Replace Resources`
+- Search for `Attaché`
 - Click Install plugin
 - Restart Joplin to enable the plugin
 
@@ -19,7 +19,7 @@ A Joplin Plugin that mass replaces Resources.
 
 # Usage
 
-First configure the Plugin under `Preferences > Plugins > Replace Resources` (Mac) OR `Tools > Options > Replace Resources` (PC?)
+First configure the Plugin under `Preferences > Plugins > Attaché` (Mac) OR `Tools > Options > Attaché` (PC?)
 
 Note: due to Joplin's synchronisation conflict safeguards, this is a two-step automated process.
 
@@ -34,7 +34,7 @@ Move your source files into the files path that you entered into settings. Your 
 IMPORTANT: If you are choosing to replace resources via filename (for example, music.m3u), you must be certain there is only one resource with that filename across all your notes. If there are more, none will be replaced.
 AND: The filename in your note must be unchanged from when you originally attached it.
 
-Choose the `Tools > Replace Resources` command.
+Choose the `Tools > Attaché` command.
 This will delete each matching resource within Joplin, and move each source file to the `Step 1 - Resource Deleted Sync Needed` sub-directory.
 
 Important: this step has NOT updated your Notes, you will see the resource reference within any note still exists, however the preview of the note/resource will show a placeholder icon.
@@ -52,7 +52,7 @@ Also note: your source files are NEVER deleted, they are simply moved to differe
 
 ## Automated use
 
-By enabling the `Run on start and after sync` option, Replace Resources will be run on Joplin start and following synchronisation for you.
+By enabling the `Run on start and after sync` option, Attaché will be run on Joplin start and following synchronisation for you.
 
 Move your source files into the files path, matching the settings entry.
 
@@ -63,7 +63,7 @@ Either restart Joplin or force synchronisation.
 | Option          | Description | Default  |
 | --------------- | ----------- | -------  |
 | `Files Path`    | Where to obtain the files that will replace resources. <br>Filenames MUST be only the target resource id in the format of <resource_id>.<file_extension>, for example b1a7160da73b45ba80b9aeb0bc9d574c.png, others will be ignored. |       |
-| `Run on start and after sync`  | If checked (i.e. true), Replace Resources will run immediately after Joplin starts and after each synchronisation.    | unchecked (i.e. will NOT run on start or after sync by default) |
+| `Run on start and after sync`  | If checked (i.e. true), Attaché will run immediately after Joplin starts and after each synchronisation.    | unchecked (i.e. will NOT run on start or after sync by default) |
 
 # Building the plugin
 
