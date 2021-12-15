@@ -1,5 +1,5 @@
 # Attaché
-A Joplin Plugin that mass replaces Resources.
+A Joplin plugin. Your attachment updater. Mass replacement of Joplin attachments (resources) such as resized image files, current music playlists, and any other attachments you need to one-off or regularly update within Joplin.
 
 # Installation
 
