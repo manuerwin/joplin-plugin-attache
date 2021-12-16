@@ -35,7 +35,7 @@ export async function registerSettings(): Promise<void> {
 export async function registerCommand(): Promise<void> {    
     await joplin.commands.register({
         name: "Attaché",
-        label: "Attaché",
+        label: "Replace/update attachments",
         execute: async () => {
             await deleteResources();
         }

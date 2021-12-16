@@ -12,13 +12,16 @@ const step1DirName = "Step 1 - Resource Deleted Sync Needed";
 const step2DirName = "Step 2 - Resource Replaced";
 
 export async function init(): Promise<void> {
+    console.info(`Attaché plugin started.`);
     step0Dir = await filesPathSetting();
-    await fs.ensureDir(step0Dir);
-    step1Dir = path.join(step0Dir, step1DirName);
-    await fs.ensureDir(step1Dir);
-    step2Dir = path.join(step0Dir, step2DirName);
-    await fs.ensureDir(step2Dir);
-    console.info(`Attaché plugin started, files and directories exist at ${step0Dir}`);
+    if (step0Dir?.length > 0) {
+        await fs.ensureDir(step0Dir);
+        step1Dir = path.join(step0Dir, step1DirName);
+        await fs.ensureDir(step1Dir);
+        step2Dir = path.join(step0Dir, step2DirName);
+        await fs.ensureDir(step2Dir);
+        console.info(`Files and directories exist at ${step0Dir}`);
+    }
 }
 
 export async function deleteResources(): Promise<void> {

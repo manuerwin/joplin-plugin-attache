@@ -34,7 +34,7 @@ Move your source files into the files path that you entered into settings. Your 
 IMPORTANT: If you are choosing to replace resources via filename (for example, music.m3u), you must be certain there is only one resource with that filename across all your notes. If there are more, none will be replaced.
 AND: The filename in your note must be unchanged from when you originally attached it.
 
-Choose the `Tools > Attaché` command.
+Choose the `Tools > Replace/update attachments` command.
 This will delete each matching resource within Joplin, and move each source file to the `Step 1 - Resource Deleted Sync Needed` sub-directory.
 
 Important: this step has NOT updated your Notes, you will see the resource reference within any note still exists, however the preview of the note/resource will show a placeholder icon.
