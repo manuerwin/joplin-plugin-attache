@@ -69,7 +69,7 @@ describe("Replace Resources", function () {
   });
 
   test(`1-VALID file format does NOT match resource + sync config either enabled or disabled`, async () => {
-    console.debug(`#######################DEBUG:TEST-1:#######################`);
+    console.debug(`#######################TEST-1-VALID file format does NOT match resource + sync config either enabled or disabled:#######################`);
     const fileName = "FilenameDoesNotMatchExistingId42";
     const filePathExt = path.join(testBaseDir, fileName + fileExt);
     fs.writeFileSync(filePathExt, "file");
@@ -90,7 +90,7 @@ describe("Replace Resources", function () {
   });
 
   test(`2-INVALID file format does NOT match resource + sync config either enabled or disabled`, async () => {
-    console.debug(`#######################DEBUG:TEST-2:#######################`);
+    console.debug(`#######################TEST-2-INVALID file format does NOT match resource + sync config either enabled or disabled#######################`);
     const fileName = "invalidFileFormat";
     const filePathExt = path.join(testBaseDir, fileName + fileExt);
     fs.writeFileSync(filePathExt, "file");
@@ -114,7 +114,7 @@ describe("Replace Resources", function () {
   });
 
   test(`3-VALID file format DOES match resource + sync config disabled`, async () => {
-    console.debug(`#######################DEBUG:TEST-3:#######################`);
+    console.debug(`#######################TEST-3-VALID file format DOES match resource + sync config disabled#######################`);
     const fileName = "FilenameDOESxxxMatchExistingId01";
     const filePathExt = path.join(testBaseDir, fileName + fileExt);
     fs.writeFileSync(filePathExt, "file");
@@ -133,7 +133,7 @@ describe("Replace Resources", function () {
   });
   
   test(`4-INVALID file format DOES match resource + sync config enabled`, async () => {
-    console.debug(`#######################DEBUG:TEST-4:#######################`);
+    console.debug(`#######################TEST-4-INVALID file format DOES match resource + sync config enabled#######################`);
     const fileName = "invalidFileFormatDOESmatch";
     const filePathExt = path.join(testBaseDir, fileName + fileExt);
     fs.writeFileSync(filePathExt, "file");
@@ -172,7 +172,7 @@ describe("Replace Resources", function () {
   });
 
   test(`5-INVALID file format DOES match resource + sync config enabled + run on start and after sync enabled`, async () => {
-    console.debug(`#######################DEBUG:TEST-5:#######################`);
+    console.debug(`#######################TEST-5-INVALID file format DOES match resource + sync config enabled + run on start and after sync enabled#######################`);
     const fileName = "invalidFileFormatDOESmatch";
     const filePathExt = path.join(testBaseDir, fileName + fileExt);
     fs.writeFileSync(filePathExt, "file");
