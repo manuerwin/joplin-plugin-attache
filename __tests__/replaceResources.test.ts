@@ -2,7 +2,7 @@ import joplin from 'api';
 import * as path from "path";
 import * as fs from "fs-extra";
 import { init, deleteResources, createResources, syncConfiguredAndRunOnStart } from '../src/replaceResources';
-import { deleteResource, filesPathSetting, getResourceByFilename, syncConfigured, postResource, setFilesPathValue, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
+import { deleteResource, filesPathSetting, getResource, syncConfigured, postResource, setFilesPathValue, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
 import { string } from 'yargs';
 
 const testBaseDir = path.join(__dirname, "ReplaceResourcesTest");
@@ -37,7 +37,7 @@ jest.mock('../src/replaceResourcesApi', () => {
     syncTargetGlobalSetting: jest.fn(),
     runOnStartAndAfterSyncSetting: jest.fn(),
     syncConfigured: jest.fn(),
-    getResourceByFilename: jest.fn(),
+    getResource: jest.fn(),
     deleteResource: jest.fn(),
     postResource: jest.fn(),
     executeSync: jest.fn(),
@@ -78,15 +78,15 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
     let itemsReturned = [];
     let resultsReturned: apiSearchResult = {
       items: itemsReturned,
     };
-    mockgetResourceByFilename.mockResolvedValue(resultsReturned);
+    mockgetResource.mockResolvedValue(resultsReturned);
 
     await deleteResources();
-    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(getResource).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
     expect(fs.existsSync(filePathExt)).toBe(true);
@@ -99,15 +99,15 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
     let itemsReturned = [];
     let resultsReturned: apiSearchResult = {
       items: itemsReturned,
     };
-    mockgetResourceByFilename.mockResolvedValue(resultsReturned);
+    mockgetResource.mockResolvedValue(resultsReturned);
 
     await deleteResources();
-    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(getResource).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
     expect(fs.existsSync(filePathExt)).toBe(true);
@@ -120,7 +120,7 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
     let resourceReturned: resourceByFileName = {
       title: 'ResourcexxxxIdxxxxFormatxxxx0001.png',
       id: 'ResourcexxxxIdxxxxFormatxxxx0001',
@@ -130,13 +130,13 @@ describe("Replace Resources", function () {
     let resultsReturned: apiSearchResult = {
       items: itemsReturned,
     };
-    mockgetResourceByFilename.mockResolvedValue(resultsReturned);
+    mockgetResource.mockResolvedValue(resultsReturned);
 
     const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
     mockdeleteResource.mockResolvedValue(true);
 
     await deleteResources();
-    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(getResource).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(1);
@@ -150,7 +150,7 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
     let resourceReturned: resourceByFileName = {
       title: 'attachmentNameFormat.png',
       id: 'FilenameDOESxxxMatchExistingId42',
@@ -160,7 +160,7 @@ describe("Replace Resources", function () {
     let resultsReturned: apiSearchResult = {
       items: itemsReturned,
     };
-    mockgetResourceByFilename.mockResolvedValue(resultsReturned);
+    mockgetResource.mockResolvedValue(resultsReturned);
 
     const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
     mockdeleteResource.mockResolvedValue(true);
@@ -168,7 +168,7 @@ describe("Replace Resources", function () {
     mocksyncConfigured.mockResolvedValue(true);
 
     await deleteResources();
-    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(getResource).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(syncConfigured).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(1);
@@ -184,7 +184,7 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
     let resourceReturned: resourceByFileName = {
       title: 'attachmentNameFormat.png',
       id: 'FilenameDOESxxxMatchExistingId42',
@@ -194,7 +194,7 @@ describe("Replace Resources", function () {
     let resultsReturned: apiSearchResult = {
       items: itemsReturned,
     };
-    mockgetResourceByFilename.mockResolvedValue(resultsReturned);
+    mockgetResource.mockResolvedValue(resultsReturned);
 
     const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
     mockdeleteResource.mockResolvedValue(true);
@@ -207,7 +207,7 @@ describe("Replace Resources", function () {
     expect(syncConfigured).toHaveBeenCalledTimes(1);
     expect(syncConfigured).toBeTruthy();
     await deleteResources();
-    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(getResource).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(syncConfigured).toHaveBeenCalledTimes(2);
     expect(executeSync).toHaveBeenCalledTimes(1);

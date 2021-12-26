@@ -30,7 +30,7 @@ export async function syncConfigured(): Promise<boolean> {
     return false;
 }
 
-export async function getResourceByFilename(resourceSearchString: string): Promise<any> {
+export async function getResource(resourceSearchString: string): Promise<any> {
     return await joplin.data.get(["search"], {
         query: resourceSearchString,
         type: "resource",

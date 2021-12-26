@@ -1,4 +1,4 @@
-import { deleteResource, postResource, executeSync, getResourceByFilename, filesPathSetting, syncConfigured, runOnStartAndAfterSyncSetting } from "./replaceResourcesApi";
+import { deleteResource, postResource, executeSync, getResource, filesPathSetting, syncConfigured, runOnStartAndAfterSyncSetting } from "./replaceResourcesApi";
 import * as path from "path";
 import * as fs from "fs-extra";
 
@@ -53,7 +53,7 @@ export async function deleteResources(): Promise<void> {
             }
             try {
                 console.debug(`deleteResources: resourceSearchString: ${resourceSearchString}`);
-                originalResource = await getResourceByFilename(resourceSearchString);
+                originalResource = await getResource(resourceSearchString);
                 if (originalResource.items.length == 1) {
                     console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
                     resourceTitle = originalResource.items[0].title;
