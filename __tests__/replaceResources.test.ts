@@ -8,21 +8,14 @@ import { string } from 'yargs';
 const testBaseDir = path.join(__dirname, "ReplaceResourcesTest");
 const step1Dir = path.join(testBaseDir, "Step 1 - Resource Deleted Sync Needed");
 const sourceFilesDir = path.join(__dirname, "ReplaceResourcesSourceFiles");
-const fileExt = ".png";
 const fileExtReplace = '.REPLACE';
 const fileSeparator = '~';
-const resourceIds = [
-  "FilenameDOESxxxMatchExistingId01",
-  "FilenameDOESxxxMatchExistingId02"
-]
 const createdTime = 1000000000000;
-const updatedTime = 1640062082755;
 
 interface resourceByFileName {
   title: string;
   id: string;
   created_time: number;
-  updated_time: number;
 };
 interface apiSearchResult {
   items: resourceByFileName[];
@@ -62,11 +55,6 @@ describe("Replace Resources", function () {
     fs.emptyDirSync(sourceFilesDir);
     expect(fs.pathExistsSync(sourceFilesDir)).toBe(true);
     
-    // for (const resourceId of resourceIds) {
-    //   let fileX = path.join(sourceFilesDir, resourceId + fileExt);
-    //   fs.writeFileSync(fileX, "file");
-    //   expect(fs.existsSync(fileX)).toBe(true);   
-    // }
   });
   
   beforeEach(async () => {
@@ -83,10 +71,10 @@ describe("Replace Resources", function () {
     fs.removeSync(sourceFilesDir);
   });
 
-  test(`1-VALID file format does NOT match resource + sync config either enabled or disabled`, async () => {
-    console.debug(`#######################TEST-1-VALID file format does NOT match resource + sync config either enabled or disabled`);
-    const fileName = "FilenameDoesNotMatchExistingId42";
-    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+  test(`1-Resource Id format does NOT match resource + sync config either enabled or disabled`, async () => {
+    console.debug(`#######################TEST-1-Resource Id format does NOT match resource + sync config either enabled or disabled#######################`);
+    const fileName = "ResourcexxxxIdxxxxFormatxxxx0001.png";
+    const filePathExt = path.join(testBaseDir, fileName);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
@@ -104,10 +92,10 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(filePathExt)).toBe(true);
   });
 
-  test(`2-INVALID file format does NOT match resource + sync config either enabled or disabled`, async () => {
-    console.debug(`#######################TEST-2-INVALID file format does NOT match resource + sync config either enabled or disabled`);
-    const fileName = "invalidFileFormat";
-    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+  test(`2-Attachment format does NOT match resource + sync config either enabled or disabled`, async () => {
+    console.debug(`#######################TEST-2-Attachment format does NOT match resource + sync config either enabled or disabled#######################`);
+    const fileName = "attachmentNameFormat.png";
+    const filePathExt = path.join(testBaseDir, fileName);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
@@ -125,19 +113,18 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(filePathExt)).toBe(true);
   });
 
-  test(`3-VALID file format DOES match resource + sync config disabled`, async () => {
-    console.debug(`#######################TEST-3-VALID file format DOES match resource + sync config disabled`);
-    const fileName = "FilenameDOESxxxMatchExistingId01";
-    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+  test(`3-Resource Id format DOES match resource + sync config disabled`, async () => {
+    console.debug(`#######################TEST-3-Resource Id format DOES match resource + sync config disabled#######################`);
+    const fileName = "ResourcexxxxIdxxxxFormatxxxx0001.png";
+    const filePathExt = path.join(testBaseDir, fileName);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
     const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
     let resourceReturned: resourceByFileName = {
-      title: 'FilenameDOESxxxMatchExistingId01.png',
-      id: 'FilenameDOESxxxMatchExistingId01',
-      created_time: createdTime,
-      updated_time: updatedTime
+      title: 'ResourcexxxxIdxxxxFormatxxxx0001.png',
+      id: 'ResourcexxxxIdxxxxFormatxxxx0001',
+      created_time: createdTime
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {
@@ -156,19 +143,18 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
   
-  test(`4-INVALID file format DOES match resource + sync config enabled`, async () => {
-    console.debug(`#######################TEST-4-INVALID file format DOES match resource + sync config enabled`);
-    const fileName = "invalidFileFormatDOESmatch";
-    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+  test(`4-Attachment name format DOES match resource + sync config enabled`, async () => {
+    console.debug(`#######################TEST-4-Attachment format DOES match resource + sync config enabled#######################`);
+    const fileName = "attachmentNameFormat.png";
+    const filePathExt = path.join(testBaseDir, fileName);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
     const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
     let resourceReturned: resourceByFileName = {
-      title: 'invalidFileFormatDOESmatch.png',
+      title: 'attachmentNameFormat.png',
       id: 'FilenameDOESxxxMatchExistingId42',
-      created_time: createdTime,
-      updated_time: updatedTime
+      created_time: createdTime
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {
@@ -191,19 +177,18 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
 
-  test(`5-INVALID file format DOES match resource + sync config enabled + run on start and after sync enabled`, async () => {
-    console.debug(`#######################TEST-5-INVALID file format DOES match resource + sync config enabled + run on start and after sync enabled`);
-    const fileName = "invalidFileFormatDOESmatch";
-    const filePathExt = path.join(testBaseDir, fileName + fileExt);
+  test(`5-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled`, async () => {
+    console.debug(`#######################TEST-5-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled#######################`);
+    const fileName = "attachmentNameFormat.png";
+    const filePathExt = path.join(testBaseDir, fileName);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
     const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
     let resourceReturned: resourceByFileName = {
-      title: 'invalidFileFormatDOESmatch.png',
+      title: 'attachmentNameFormat.png',
       id: 'FilenameDOESxxxMatchExistingId42',
-      created_time: createdTime,
-      updated_time: updatedTime
+      created_time: createdTime
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {

@@ -38,7 +38,6 @@ export async function getResourceByFilename(filename: string): Promise<any> {
             "id",
             "title",
             "created_time",
-            "updated_time",
         ],
     });
 }
@@ -47,15 +46,14 @@ export async function deleteResource(resourceId: string): Promise<any> {
     return await joplin.data.delete(["resources", resourceId]);
 }
 
-export async function postResource(resourceId: string, pathToFile: string, title: string, created_time: number, updated_time: number): Promise<any> {
+export async function postResource(resourceId: string, pathToFile: string, title: string, created_time: number): Promise<any> {
 
     return await joplin.data.post(
         ["resources"],
         null,
         {   id: resourceId,
             title: title,
-            created_time: created_time,
-            updated_time: updated_time
+            created_time: created_time
         },
         [
             {
