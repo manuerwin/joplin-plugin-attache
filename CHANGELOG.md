@@ -2,6 +2,18 @@
 
 ## not released
 
+## v1.0.3 (2021-12-30)
+
+PATCH: resource id as filename now uses original title for replace. Also increase app_min_version to 2.6.9.
+
+## v1.0.2 (2021-12-16)
+
+Patch: Tools action now correctly named. Attachments folder only created/checked if setting has a value.
+
+## v1.0.1 (2021-12-15)
+
+DOCS: update package description
+
 ## v1.0.0 (2021-12-15)
 
 Major version - name change from Replace Resources to Attaché
