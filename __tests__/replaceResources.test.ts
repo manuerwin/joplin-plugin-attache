@@ -2,7 +2,7 @@ import joplin from 'api';
 import * as path from "path";
 import * as fs from "fs-extra";
 import { init, deleteResources, createResources, syncConfiguredAndRunOnStart } from '../src/replaceResources';
-import { deleteResource, filesPathSetting, getResourceByFilename, syncConfigured, postResource, setFilesPathValue, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
+import { deleteResource, filesPathSetting, getResourceByFilename, getResourceById, syncConfigured, postResource, setFilesPathValue, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
 import { string } from 'yargs';
 
 const testBaseDir = path.join(__dirname, "ReplaceResourcesTest");
@@ -30,6 +30,7 @@ jest.mock('../src/replaceResourcesApi', () => {
     runOnStartAndAfterSyncSetting: jest.fn(),
     syncConfigured: jest.fn(),
     getResourceByFilename: jest.fn(),
+    getResourceById: jest.fn(),
     deleteResource: jest.fn(),
     postResource: jest.fn(),
     executeSync: jest.fn(),
@@ -119,12 +120,24 @@ describe("Replace Resources", function () {
     const filePathExt = path.join(testBaseDir, fileName + fileExt);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
-          
+
+    const mockgetResourceById = getResourceById as jest.MockedFunction<typeof getResourceById>;
+    interface getResourceById {
+      id: string;
+      title: string;
+    };
+    let resourceReturned: getResourceById = {
+      id: 'FilenameDOESxxxMatchExistingId02',
+      title: 'test.png'
+    };
+    mockgetResourceById.mockResolvedValue(resourceReturned);
+
     const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
     mockdeleteResource.mockResolvedValue(true);
 
     await deleteResources();
     expect(getResourceByFilename).toHaveBeenCalledTimes(0);
+    expect(getResourceById).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(1);
@@ -142,12 +155,14 @@ describe("Replace Resources", function () {
     const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
     interface resourceByFileName {
       id: string;
+      title: string;
     };
     interface apiSearchResult {
       items: resourceByFileName[];
     };
     let resourceReturned: resourceByFileName = {
-      id: 'FilenameDOESxxxMatchExistingId02'
+      id: 'FilenameDOESxxxMatchExistingId02',
+      title: 'test.png'
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {
@@ -181,12 +196,14 @@ describe("Replace Resources", function () {
     const mockgetResourceByFilename = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
     interface resourceByFileName {
       id: string;
+      title: string;
     };
     interface apiSearchResult {
       items: resourceByFileName[];
     };
     let resourceReturned: resourceByFileName = {
-      id: 'FilenameDOESxxxMatchExistingId02'
+      id: 'FilenameDOESxxxMatchExistingId02',
+      title: 'test.png'
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {

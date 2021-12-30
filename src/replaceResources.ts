@@ -1,4 +1,4 @@
-import { deleteResource, postResource, executeSync, getResourceByFilename, filesPathSetting, syncConfigured, runOnStartAndAfterSyncSetting } from "./replaceResourcesApi";
+import { deleteResource, postResource, executeSync, getResourceByFilename, filesPathSetting, syncConfigured, runOnStartAndAfterSyncSetting, getResourceById } from "./replaceResourcesApi";
 import * as path from "path";
 import * as fs from "fs-extra";
 
@@ -32,38 +32,49 @@ export async function deleteResources(): Promise<void> {
         let fileExt = path.extname(fullNameExt);
         let filename = path.basename(fullNameExt, fileExt);
         let filePath = path.join(step0Dir, fullNameExt);
+        let resourceSearchString;
         let originalResource;
         let resourceId;
+        let resourceTitle;
         let deleteProceed = false;
 
         if ( filename != step1DirName && filename != step2DirName ) {
-            if ( regExpResourceId.test(filename) ) {
-                console.debug(`deleteResources: filename IS a ResourceId so we will attempt to delete it: ${filename}`);
-                resourceId = filename;
-                deleteProceed = true;
-            } else {
-                console.debug(`deleteResources: filename NOT a ResourceId, we need the resource id: ${fullNameExt}`);
-                try {
-                    originalResource = await getResourceByFilename(fullNameExt);
+            try {
+                if ( regExpResourceId.test(filename) ) {
+                    console.debug(`deleteResources: filename IS a ResourceId so we will use that to search: ${filename}`);
+                    resourceSearchString = filename;
+                    originalResource = await getResourceById(resourceSearchString);
+                    if (originalResource) {   
+                        resourceId = originalResource?.id;
+                        resourceTitle = originalResource?.title;
+                        deleteProceed = true;
+                    }
+                } else {
+                    console.debug(`deleteResources: filename NOT a ResourceId, will use fullNameExt to search : ${fullNameExt}`);
+                    resourceSearchString = fullNameExt;
+                    originalResource = await getResourceByFilename(resourceSearchString);
+                    
                     if (originalResource.items.length == 1) {
                         console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
                         resourceId = originalResource.items[0].id;
-                        console.info(`Resource found with filename: ${fullNameExt}. Its Resource Id is: ${resourceId}`);
+                        resourceTitle = originalResource.items[0].title;
+                        console.info(`Resource found with search: ${resourceSearchString}. Its Resource Id is: ${resourceId}`);
+                        console.debug(`deleteResources: resourceTitle: ${resourceTitle}`);
                         deleteProceed = true;
                     } else if (originalResource.items.length > 1) {
                         console.debug(`deleteResources: originalResource.items.length > 1: ${originalResource.items.length}`);
-                        console.info(`More than one resource found with filename: ${fullNameExt}. Not proceeding.`);
+                        console.info(`More than one resource found with search: ${resourceSearchString}. Not proceeding.`);
                     } else {
-                        console.info(`No resource found with filename: ${fullNameExt}. Not proceeding.`);
+                        console.info(`No resource found with search: ${resourceSearchString}. Not proceeding.`);
                     }
-                } catch (error) {
-                    console.error(`ERROR - GET Resource by filename: ${fullNameExt} ${error}`);
                 }
+            } catch (error) {
+                console.error(`ERROR - GET Resource by search: ${resourceSearchString} ${error}`);
             }
         }
 
-        if (deleteProceed) {
-            console.debug(`deleteResources: deleteProceed: ${deleteProceed}`);
+        if ((resourceId) && (resourceTitle)) {
+            console.debug(`deleteResources: resourceId ${resourceId} & resourceTitle ${resourceTitle} both have values, proceed with delete`);
             try {
                 let deleteResourceStatus = await deleteResource(resourceId);
 
@@ -71,11 +82,11 @@ export async function deleteResources(): Promise<void> {
                     let step1DirAndFile = path.join(step1Dir, fullNameExt);
                     let fileMove = await fs.move(filePath, step1DirAndFile);
                     console.info(`Resource deleted, file moved: ${fullNameExt}`);
-                    let fileResourceReplace = fullNameExt +'~'+ resourceId + fileResourceExt;
+                    let fileResourceReplace = filename + fileExt +'~'+ resourceTitle +'~'+ resourceId + fileResourceExt;
                     console.debug(`deleteResources: fileResourceReplace: ${fileResourceReplace}`);
-                    let fileResourceReplacePath = path.join(step1Dir, fullNameExt +'~'+ resourceId + fileResourceExt);
+                    let fileResourceReplacePath = path.join(step1Dir, fileResourceReplace);
                     fs.ensureFileSync(fileResourceReplacePath);
-                    console.debug(`.replace file moved: ${fileResourceReplacePath}`);
+                    console.debug(`.replace file created: ${fileResourceReplacePath}`);
 
                     createResourcesProceed = true;
                 } catch (error) {
@@ -117,15 +128,17 @@ export async function createResources() {
             let fileExt = path.extname(fullNameExtReplace);
             let fullName = path.basename(fullNameExtReplace, fileExt);
             let fullNameSplit = fullName.split('~');
+            console.debug(`createResources: fullNameSplit: ${fullNameSplit}`)
             let filenameExt = fullNameSplit[0];
-            let resourceId = fullNameSplit[1];
+            let resourceTitle = fullNameSplit[1];
+            let resourceId = fullNameSplit[2];
             let step1DirAndFileReplace = path.join(step1Dir, fullNameExtReplace);
             let step1DirAndFile = path.join(step1Dir, filenameExt);
             let step2DirAndFile = path.join(step2Dir, filenameExt);
             
             try {
                 console.debug(`about to postResource: ${filenameExt} with resourceId ${resourceId}`);
-                let newResource = await postResource(resourceId, step1DirAndFile, filenameExt);
+                let newResource = await postResource(resourceId, step1DirAndFile, resourceTitle);
                 try {
                     let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
                     let fileMoveReplace = await fs.removeSync(step1DirAndFileReplace);
