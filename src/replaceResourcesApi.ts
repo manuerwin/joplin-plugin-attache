@@ -30,14 +30,25 @@ export async function syncConfigured(): Promise<boolean> {
     return false;
 }
 
-export async function getResource(resourceSearchString: string): Promise<any> {
+export async function getResourceById(resourceId: string): Promise<any> {
+    console.debug(`getResourceById: resourceId: ${resourceId}`);
+    return await joplin.data.get(["resources", resourceId], {
+        fields: [
+            "id",
+            "title",
+            "created_time"
+        ],
+    });
+}
+export async function getResourceByFilename(resourceSearchString: string): Promise<any> {
+    console.debug(`getResourceByFilename: resourceSearchString: ${resourceSearchString}`);
     return await joplin.data.get(["search"], {
         query: resourceSearchString,
         type: "resource",
         fields: [
             "id",
             "title",
-            "created_time",
+            "created_time"
         ],
     });
 }
@@ -46,13 +57,12 @@ export async function deleteResource(resourceId: string): Promise<any> {
     return await joplin.data.delete(["resources", resourceId]);
 }
 
-export async function postResource(resourceId: string, pathToFile: string, title: string, user_created_time: number): Promise<any> {
-
+export async function postResource(resourceId: string, pathToFile: string, resourceTitle: string, user_created_time: number): Promise<any> {
     return await joplin.data.post(
         ["resources"],
         null,
         {   id: resourceId,
-            title: title,
+            title: resourceTitle,
             user_created_time: user_created_time
         },
         [

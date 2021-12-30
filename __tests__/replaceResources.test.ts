@@ -2,7 +2,7 @@ import joplin from 'api';
 import * as path from "path";
 import * as fs from "fs-extra";
 import { init, deleteResources, createResources, syncConfiguredAndRunOnStart } from '../src/replaceResources';
-import { deleteResource, filesPathSetting, getResource, syncConfigured, postResource, setFilesPathValue, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
+import { deleteResource, filesPathSetting, getResourceByFilename, getResourceById, syncConfigured, postResource, setFilesPathValue, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
 import { string } from 'yargs';
 
 const testBaseDir = path.join(__dirname, "ReplaceResourcesTest");
@@ -37,7 +37,8 @@ jest.mock('../src/replaceResourcesApi', () => {
     syncTargetGlobalSetting: jest.fn(),
     runOnStartAndAfterSyncSetting: jest.fn(),
     syncConfigured: jest.fn(),
-    getResource: jest.fn(),
+    getResourceByFilename: jest.fn(),
+    getResourceById: jest.fn(),
     deleteResource: jest.fn(),
     postResource: jest.fn(),
     executeSync: jest.fn(),
@@ -78,7 +79,7 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
     let itemsReturned = [];
     let resultsReturned: apiSearchResult = {
       items: itemsReturned,
@@ -86,7 +87,7 @@ describe("Replace Resources", function () {
     mockgetResource.mockResolvedValue(resultsReturned);
 
     await deleteResources();
-    expect(getResource).toHaveBeenCalledTimes(1);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
     expect(fs.existsSync(filePathExt)).toBe(true);
@@ -99,7 +100,7 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
     let itemsReturned = [];
     let resultsReturned: apiSearchResult = {
       items: itemsReturned,
@@ -107,7 +108,7 @@ describe("Replace Resources", function () {
     mockgetResource.mockResolvedValue(resultsReturned);
 
     await deleteResources();
-    expect(getResource).toHaveBeenCalledTimes(1);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
     expect(fs.existsSync(filePathExt)).toBe(true);
@@ -120,23 +121,25 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
-    let resourceReturned: resourceByFileName = {
+    const mockgetResourceById = getResourceById as jest.MockedFunction<typeof getResourceById>;
+    interface getResourceById {
+      id: string;
+      title: string;
+      created_time: number,
+    };
+    let resourceReturned: getResourceById = {
       title: 'ResourcexxxxIdxxxxFormatxxxx0001.png',
       id: 'ResourcexxxxIdxxxxFormatxxxx0001',
-      created_time: createdTime
+      created_time: createdTime,
     };
-    let itemsReturned = new Array<resourceByFileName>(resourceReturned);
-    let resultsReturned: apiSearchResult = {
-      items: itemsReturned,
-    };
-    mockgetResource.mockResolvedValue(resultsReturned);
+    mockgetResourceById.mockResolvedValue(resourceReturned);
 
     const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
     mockdeleteResource.mockResolvedValue(true);
 
     await deleteResources();
-    expect(getResource).toHaveBeenCalledTimes(1);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(0);
+    expect(getResourceById).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(1);
@@ -150,11 +153,19 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    interface resourceByFileName {
+      id: string;
+      title: string;
+      created_time: number;
+    };
+    interface apiSearchResult {
+      items: resourceByFileName[];
+    };
     let resourceReturned: resourceByFileName = {
       title: 'attachmentNameFormat.png',
       id: 'FilenameDOESxxxMatchExistingId42',
-      created_time: createdTime
+      created_time: createdTime,
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {
@@ -168,7 +179,8 @@ describe("Replace Resources", function () {
     mocksyncConfigured.mockResolvedValue(true);
 
     await deleteResources();
-    expect(getResource).toHaveBeenCalledTimes(1);
+    expect(getResourceById).toHaveBeenCalledTimes(0);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(syncConfigured).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(1);
@@ -184,11 +196,19 @@ describe("Replace Resources", function () {
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResource = getResource as jest.MockedFunction<typeof getResource>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    interface resourceByFileName {
+      id: string;
+      title: string;
+      created_time: number;
+    };
+    interface apiSearchResult {
+      items: resourceByFileName[];
+    };
     let resourceReturned: resourceByFileName = {
       title: 'attachmentNameFormat.png',
       id: 'FilenameDOESxxxMatchExistingId42',
-      created_time: createdTime
+      created_time: createdTime,
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {
@@ -207,7 +227,8 @@ describe("Replace Resources", function () {
     expect(syncConfigured).toHaveBeenCalledTimes(1);
     expect(syncConfigured).toBeTruthy();
     await deleteResources();
-    expect(getResource).toHaveBeenCalledTimes(1);
+    expect(getResourceById).toHaveBeenCalledTimes(0);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(syncConfigured).toHaveBeenCalledTimes(2);
     expect(executeSync).toHaveBeenCalledTimes(1);
