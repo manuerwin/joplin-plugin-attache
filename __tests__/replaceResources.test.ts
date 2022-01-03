@@ -226,6 +226,49 @@ describe("Replace Resources", function () {
     expect(putResource).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
+
+  test(`6-ensure replace completes subsequent times without manual removal of files from step 2 directory`, async () => {
+    console.debug(`#######################TEST-6-ensure replace completes subsequent times without manual removal of files from step 2 directory#######################`);
+    let filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
+    fs.writeFileSync(filePathExt, "file");
+    expect(fs.existsSync(filePathExt)).toBe(true);
+
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    let resourceReturned: resourceByFileName = {
+      id: resourceIdFormat,
+      title: attachmentNameFormatFilename,
+      user_created_time: createdTime,
+    };
+    let itemsReturned = new Array<resourceByFileName>(resourceReturned);
+    let resultsReturned: apiSearchResult = {
+      items: itemsReturned,
+    };
+    mockgetResource.mockResolvedValue(resultsReturned);
+
+    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    mockdeleteResource.mockResolvedValue(true);
+
+    await deleteResources();
+    expect(getResourceById).toHaveBeenCalledTimes(0);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(deleteResource).toHaveBeenCalledTimes(1);
+    await createResources();
+    expect(postResource).toHaveBeenCalledTimes(1);
+    expect(putResource).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(filePathExt)).toBe(false);
+
+    // Run a second time with the same file, should work without errors
+    filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
+    fs.writeFileSync(filePathExt, "file");
+    expect(fs.existsSync(filePathExt)).toBe(true);
+
+    await deleteResources();
+    expect(getResourceById).toHaveBeenCalledTimes(0);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(2);
+    expect(deleteResource).toHaveBeenCalledTimes(2);
+    await createResources();
+    expect(postResource).toHaveBeenCalledTimes(2);
+    expect(putResource).toHaveBeenCalledTimes(2);
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
 

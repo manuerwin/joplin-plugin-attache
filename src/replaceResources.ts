@@ -147,7 +147,7 @@ export async function createResources() {
                 console.debug(`about to putResource: ${resourceId} with UserCreatedTime ${resourceUserCreatedTime}`);
                 let put = await putResource(resourceId, resourceUserCreatedTime);
                 try {
-                    let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
+                    let fileMove = await fs.move(step1DirAndFile, step2DirAndFile, { overwrite: true });
                     let fileMoveReplace = await fs.removeSync(step1DirAndFileReplace);
                 } catch (error) {
                     console.error(`ERROR - moving files to step 2 directory: ${error}`);
