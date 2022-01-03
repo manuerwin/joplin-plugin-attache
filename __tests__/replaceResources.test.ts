@@ -121,6 +121,7 @@ describe("Replace Resources", function () {
     expect(getResourceById).toHaveBeenCalledTimes(0);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
+    expect(putResource).toHaveBeenCalledTimes(0);
     expect(fs.existsSync(filePathExt)).toBe(true);
   });
 
@@ -147,6 +148,7 @@ describe("Replace Resources", function () {
     expect(deleteResource).toHaveBeenCalledTimes(1);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(1);
+    expect(putResource).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
   
@@ -181,6 +183,7 @@ describe("Replace Resources", function () {
     expect(executeSync).toHaveBeenCalledTimes(1);
     await createResources();
     expect(postResource).toHaveBeenCalledTimes(1);
+    expect(putResource).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
 
@@ -220,6 +223,9 @@ describe("Replace Resources", function () {
     expect(executeSync).toHaveBeenCalledTimes(1);
     await createResources();
     expect(postResource).toHaveBeenCalledTimes(1);
+    expect(putResource).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(filePathExt)).toBe(false);
+  });
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
 
