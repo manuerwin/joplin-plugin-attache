@@ -150,9 +150,9 @@ export async function createResources() {
                     let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
                     let fileMoveReplace = await fs.removeSync(step1DirAndFileReplace);
                 } catch (error) {
-                    console.error(`ERROR - moving files to step 2 directory: ${error}`);	
+                    console.error(`ERROR - moving files to step 2 directory: ${error}`);
                 }   
-                console.info(`Resource created, file moved: ${resourceTitle}`);
+                console.info(`Attachment replaced, file moved: ${resourceTitle}`);
             } catch (error) {
                 console.error(`ERROR - with either POST and PUT Resource: file: ${resourceTitle} with resource id: ${resourceId} ${error}`);
             }       
