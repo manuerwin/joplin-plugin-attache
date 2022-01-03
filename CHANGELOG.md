@@ -2,6 +2,10 @@
 
 ## not released
 
+## v1.1.1 (2022-01-03)
+
+IMPROVED: no need to remove files from step 2 directory for subsequent replacements.
+
 ## v1.1.0 (2022-01-03)
 
 IMPROVED: original attachment created date preserved on replace from now on.
