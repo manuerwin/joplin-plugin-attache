@@ -1,4 +1,4 @@
-import { deleteResource, postResource, executeSync, getResourceByFilename, filesPathSetting, syncConfigured, runOnStartAndAfterSyncSetting, getResourceById } from "./replaceResourcesApi";
+import { deleteResource, postResource, putResource, executeSync, getResourceByFilename, filesPathSetting, syncConfigured, runOnStartAndAfterSyncSetting, getResourceById } from "./replaceResourcesApi";
 import * as path from "path";
 import * as fs from "fs-extra";
 
@@ -7,8 +7,8 @@ let step1Dir;
 let step2Dir;
 const regExpResourceId: RegExp = /^[a-zA-Z0-9]{32}$/;
 const fileExtReplace = '.REPLACE';
-// any length title, resource id, created_time with .REPLACE
-const regExpFileResourceReplace: RegExp = /^.*~[a-zA-Z0-9]{32}~[0-9]{13}.REPLACE$/;
+// any filename, resource id (32), any title, user_created_time (13) with ~ separator, ending in .REPLACE
+const regExpFileResourceReplace: RegExp = /^.*~[a-zA-Z0-9]{32}~.*~[0-9]{13}.REPLACE$/;
 const fileSeparator = '~';
 const step1DirName = "Step 1 - Resource Deleted Sync Needed";
 const step2DirName = "Step 2 - Resource Replaced";
@@ -39,7 +39,7 @@ export async function deleteResources(): Promise<void> {
         let originalResource;
         let resourceId;
         let resourceTitle;
-        let resourceCreatedTime;
+        let resourceUserCreatedTime;
 
         if ( filename != step1DirName && filename != step2DirName ) {
             try {
@@ -50,7 +50,7 @@ export async function deleteResources(): Promise<void> {
                     if (originalResource) {   
                         resourceId = originalResource?.id;
                         resourceTitle = originalResource?.title;
-                        resourceCreatedTime = originalResource?.created_time;
+                        resourceUserCreatedTime = originalResource?.user_created_time;
                     }
                 } else {
                     console.debug(`deleteResources: filename NOT a ResourceId, will use fullNameExt to search : ${fullNameExt}`);
@@ -61,9 +61,9 @@ export async function deleteResources(): Promise<void> {
                         console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
                         resourceId = originalResource.items[0].id;
                         resourceTitle = originalResource.items[0].title;
-                        resourceCreatedTime = originalResource.items[0].created_time;
+                        resourceUserCreatedTime = originalResource.items[0].user_created_time;
                         console.info(`Resource found with search: ${resourceSearchString}. Its Resource Id is: ${resourceId}`);
-                        console.debug(`deleteResources: resourceTitle: ${resourceTitle} & resourceCreatedTime: ${resourceCreatedTime}`);
+                        console.debug(`deleteResources: resourceTitle: ${resourceTitle} & resourceUserCreatedTime: ${resourceUserCreatedTime}`);
                     } else if (originalResource.items.length > 1) {
                         console.debug(`deleteResources: originalResource.items.length > 1: ${originalResource.items.length}`);
                         console.info(`More than one resource found with search: ${resourceSearchString}. Not proceeding.`);
@@ -76,8 +76,8 @@ export async function deleteResources(): Promise<void> {
             }
         }
 
-        if ((resourceId) && (resourceTitle) && (resourceCreatedTime)) {
-            console.debug(`deleteResources: resourceId ${resourceId}, resourceTitle ${resourceTitle} & resourceCreatedTime ${resourceCreatedTime} all have values, proceed with delete`);
+        if ((resourceId) && (resourceTitle) && (resourceUserCreatedTime)) {
+            console.debug(`deleteResources: resourceId ${resourceId}, resourceTitle ${resourceTitle} & resourceUserCreatedTime ${resourceUserCreatedTime} all have values, proceed with delete`);
             try {
                 let deleteResourceStatus = await deleteResource(resourceId);
 
@@ -85,7 +85,7 @@ export async function deleteResources(): Promise<void> {
                     let step1DirAndFile = path.join(step1Dir, fullNameExt);
                     let fileMove = await fs.move(filePath, step1DirAndFile);
                     console.info(`Resource deleted, file moved: ${fullNameExt}`);
-                    let fileResourceReplace = [filename + fileExt, resourceId, resourceTitle, resourceCreatedTime].join(fileSeparator) + fileExtReplace;
+                    let fileResourceReplace = [filename + fileExt, resourceId, resourceTitle, resourceUserCreatedTime].join(fileSeparator) + fileExtReplace;
                     console.debug(`deleteResources: fileResourceReplace: ${fileResourceReplace}`);
                     let fileResourceReplacePath = path.join(step1Dir, fileResourceReplace);
                     fs.ensureFileSync(fileResourceReplacePath);
@@ -135,7 +135,7 @@ export async function createResources() {
             let filenameExt = fullNameSplit[0];
             let resourceId = fullNameSplit[1];
             let resourceTitle = fullNameSplit[2];
-            let resourceCreatedTime = +fullNameSplit[3]
+            let resourceUserCreatedTime = +fullNameSplit[3]
 
             let step1DirAndFileReplace = path.join(step1Dir, fullNameExtReplace);
             let step1DirAndFile = path.join(step1Dir, filenameExt);
@@ -143,7 +143,9 @@ export async function createResources() {
             
             try {
                 console.debug(`about to postResource: ${resourceTitle} with resourceId ${resourceId}`);
-                let newResource = await postResource(resourceId, step1DirAndFile, resourceTitle, resourceCreatedTime);
+                let post = await postResource(resourceId, step1DirAndFile, resourceTitle);
+                console.debug(`about to putResource: ${resourceId} with UserCreatedTime ${resourceUserCreatedTime}`);
+                let put = await putResource(resourceId, resourceUserCreatedTime);
                 try {
                     let fileMove = await fs.move(step1DirAndFile, step2DirAndFile);
                     let fileMoveReplace = await fs.removeSync(step1DirAndFileReplace);
@@ -152,7 +154,7 @@ export async function createResources() {
                 }   
                 console.info(`Resource created, file moved: ${resourceTitle}`);
             } catch (error) {
-                console.error(`ERROR - POST Resource: file: ${resourceTitle} with resource id: ${resourceId} ${error}`);
+                console.error(`ERROR - with either POST and PUT Resource: file: ${resourceTitle} with resource id: ${resourceId} ${error}`);
             }       
         }
     }

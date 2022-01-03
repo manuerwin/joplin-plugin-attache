@@ -36,7 +36,7 @@ export async function getResourceById(resourceId: string): Promise<any> {
         fields: [
             "id",
             "title",
-            "created_time"
+            "user_created_time"
         ],
     });
 }
@@ -48,7 +48,7 @@ export async function getResourceByFilename(resourceSearchString: string): Promi
         fields: [
             "id",
             "title",
-            "created_time"
+            "user_created_time"
         ],
     });
 }
@@ -57,13 +57,12 @@ export async function deleteResource(resourceId: string): Promise<any> {
     return await joplin.data.delete(["resources", resourceId]);
 }
 
-export async function postResource(resourceId: string, pathToFile: string, resourceTitle: string, user_created_time: number): Promise<any> {
+export async function postResource(resourceId: string, pathToFile: string, resourceTitle: string): Promise<any> {
     return await joplin.data.post(
         ["resources"],
         null,
         {   id: resourceId,
             title: resourceTitle,
-            user_created_time: user_created_time
         },
         [
             {
@@ -71,6 +70,12 @@ export async function postResource(resourceId: string, pathToFile: string, resou
             },
         ]
     );
+}
+
+export async function putResource(resourceId: string, userCreatedTime: number): Promise<any> {
+    console.debug(`putResource: userCreatedTime: ${userCreatedTime}`);
+    // Per https://joplinapp.org/api/references/plugin_api/classes/joplindata.html
+    return await joplin.data.put(['resources', resourceId], null, { user_created_time: userCreatedTime });
 }
 
 export async function executeSync(): Promise<void> {

@@ -2,8 +2,7 @@ import joplin from 'api';
 import * as path from "path";
 import * as fs from "fs-extra";
 import { init, deleteResources, createResources, syncConfiguredAndRunOnStart } from '../src/replaceResources';
-import { deleteResource, filesPathSetting, getResourceByFilename, getResourceById, syncConfigured, postResource, setFilesPathValue, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
-import { string } from 'yargs';
+import { deleteResource, filesPathSetting, getResourceByFilename, getResourceById, syncConfigured, postResource, putResource, setFilesPathValue, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
 
 const testBaseDir = path.join(__dirname, "ReplaceResourcesTest");
 const step1Dir = path.join(testBaseDir, "Step 1 - Resource Deleted Sync Needed");
@@ -11,11 +10,21 @@ const sourceFilesDir = path.join(__dirname, "ReplaceResourcesSourceFiles");
 const fileExtReplace = '.REPLACE';
 const fileSeparator = '~';
 const createdTime = 1000000000000;
+const fileExt = '.png';
+const resourceIdFormat = 'ResourcexxxxIdxxxxFormatxxxx0001';
+const resourceIdFormatFilename = resourceIdFormat + fileExt;
+const attachmentNameFormat = 'attachmentNameFormat';
+const attachmentNameFormatFilename = attachmentNameFormat + fileExt;
 
-interface resourceByFileName {
-  title: string;
+interface resourceById {
   id: string;
-  created_time: number;
+  title: string;
+  user_created_time: number,
+};
+interface resourceByFileName {
+  id: string;
+  title: string;
+  user_created_time: number;
 };
 interface apiSearchResult {
   items: resourceByFileName[];
@@ -41,6 +50,7 @@ jest.mock('../src/replaceResourcesApi', () => {
     getResourceById: jest.fn(),
     deleteResource: jest.fn(),
     postResource: jest.fn(),
+    putResource: jest.fn(),
     executeSync: jest.fn(),
   }
 });
@@ -74,29 +84,28 @@ describe("Replace Resources", function () {
 
   test(`1-Resource Id format does NOT match resource + sync config either enabled or disabled`, async () => {
     console.debug(`#######################TEST-1-Resource Id format does NOT match resource + sync config either enabled or disabled#######################`);
-    const fileName = "ResourcexxxxIdxxxxFormatxxxx0001.png";
-    const filePathExt = path.join(testBaseDir, fileName);
+    const filePathExt = path.join(testBaseDir, resourceIdFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
-    let itemsReturned = [];
-    let resultsReturned: apiSearchResult = {
-      items: itemsReturned,
-    };
-    mockgetResource.mockResolvedValue(resultsReturned);
+    const mockgetResource = getResourceById as jest.MockedFunction<typeof getResourceById>;
+    mockgetResource.mockImplementation( () => {
+      throw new Error();
+    });
 
     await deleteResources();
-    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(getResourceById).toHaveBeenCalledTimes(1);
+    expect(getResourceById).toThrowError();
+    expect(getResourceByFilename).toHaveBeenCalledTimes(0);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
+    expect(putResource).toHaveBeenCalledTimes(0);
     expect(fs.existsSync(filePathExt)).toBe(true);
   });
 
   test(`2-Attachment format does NOT match resource + sync config either enabled or disabled`, async () => {
     console.debug(`#######################TEST-2-Attachment format does NOT match resource + sync config either enabled or disabled#######################`);
-    const fileName = "attachmentNameFormat.png";
-    const filePathExt = path.join(testBaseDir, fileName);
+    const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
@@ -109,6 +118,7 @@ describe("Replace Resources", function () {
 
     await deleteResources();
     expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(getResourceById).toHaveBeenCalledTimes(0);
     expect(executeSync).toHaveBeenCalledTimes(0);
     expect(postResource).toHaveBeenCalledTimes(0);
     expect(fs.existsSync(filePathExt)).toBe(true);
@@ -116,21 +126,15 @@ describe("Replace Resources", function () {
 
   test(`3-Resource Id format DOES match resource + sync config disabled`, async () => {
     console.debug(`#######################TEST-3-Resource Id format DOES match resource + sync config disabled#######################`);
-    const fileName = "ResourcexxxxIdxxxxFormatxxxx0001.png";
-    const filePathExt = path.join(testBaseDir, fileName);
+    const filePathExt = path.join(testBaseDir, resourceIdFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
     const mockgetResourceById = getResourceById as jest.MockedFunction<typeof getResourceById>;
-    interface getResourceById {
-      id: string;
-      title: string;
-      created_time: number,
-    };
-    let resourceReturned: getResourceById = {
-      title: 'ResourcexxxxIdxxxxFormatxxxx0001.png',
-      id: 'ResourcexxxxIdxxxxFormatxxxx0001',
-      created_time: createdTime,
+    let resourceReturned: resourceById = {
+      id: resourceIdFormat,
+      title: resourceIdFormatFilename,
+      user_created_time: createdTime,
     };
     mockgetResourceById.mockResolvedValue(resourceReturned);
 
@@ -148,24 +152,15 @@ describe("Replace Resources", function () {
   
   test(`4-Attachment name format DOES match resource + sync config enabled`, async () => {
     console.debug(`#######################TEST-4-Attachment format DOES match resource + sync config enabled#######################`);
-    const fileName = "attachmentNameFormat.png";
-    const filePathExt = path.join(testBaseDir, fileName);
+    const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
     const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
-    interface resourceByFileName {
-      id: string;
-      title: string;
-      created_time: number;
-    };
-    interface apiSearchResult {
-      items: resourceByFileName[];
-    };
     let resourceReturned: resourceByFileName = {
-      title: 'attachmentNameFormat.png',
-      id: 'FilenameDOESxxxMatchExistingId42',
-      created_time: createdTime,
+      id: resourceIdFormat,
+      title: attachmentNameFormatFilename,
+      user_created_time: createdTime,
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {
@@ -191,24 +186,15 @@ describe("Replace Resources", function () {
 
   test(`5-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled`, async () => {
     console.debug(`#######################TEST-5-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled#######################`);
-    const fileName = "attachmentNameFormat.png";
-    const filePathExt = path.join(testBaseDir, fileName);
+    const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
     const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
-    interface resourceByFileName {
-      id: string;
-      title: string;
-      created_time: number;
-    };
-    interface apiSearchResult {
-      items: resourceByFileName[];
-    };
     let resourceReturned: resourceByFileName = {
-      title: 'attachmentNameFormat.png',
-      id: 'FilenameDOESxxxMatchExistingId42',
-      created_time: createdTime,
+      id: resourceIdFormat,
+      title: attachmentNameFormatFilename,
+      user_created_time: createdTime,
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
     let resultsReturned: apiSearchResult = {
