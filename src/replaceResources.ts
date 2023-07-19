@@ -13,6 +13,7 @@ const fileSeparator = '~';
 const step1DirName = "Step 1 - Resource Deleted Sync Needed";
 const step2DirName = "Step 2 - Resource Replaced";
 
+
 export async function init(): Promise<void> {
     console.info(`Attaché plugin started.`);
     step0Dir = await filesPathSetting();
@@ -31,7 +32,7 @@ export async function deleteResources(): Promise<void> {
     let createResourcesProceed = false;
     
     for (const fullNameExt of allFiles) {
-        console.debug(`deleteResources: fullNameExt: ${fullNameExt}`);
+        console.debug(`##DEBUG: deleteResources: fullNameExt: ${fullNameExt}`);
         let fileExt = path.extname(fullNameExt);
         let filename = path.basename(fullNameExt, fileExt);
         let filePath = path.join(step0Dir, fullNameExt);
@@ -44,28 +45,31 @@ export async function deleteResources(): Promise<void> {
         if ( filename != step1DirName && filename != step2DirName ) {
             try {
                 if ( regExpResourceId.test(filename) ) {
-                    console.debug(`deleteResources: filename IS a ResourceId so we will use that to search: ${filename}`);
+                    console.debug(`##DEBUG: deleteResources: filename IS a ResourceId so we will use that to search: ${filename}`);
                     resourceSearchString = filename;
                     originalResource = await getResourceById(resourceSearchString);
-                    if (originalResource) {   
+                    if (originalResource) {
+                        console.info(`Resource found with id: ${resourceSearchString}. Proceeding.`);
                         resourceId = originalResource?.id;
                         resourceTitle = originalResource?.title;
                         resourceUserCreatedTime = originalResource?.user_created_time;
+                    } else {
+                        console.info(`No resource found with id: ${resourceSearchString}. Not proceeding.`);
                     }
                 } else {
-                    console.debug(`deleteResources: filename NOT a ResourceId, will use fullNameExt to search : ${fullNameExt}`);
+                    console.debug(`##DEBUG: deleteResources: filename NOT a ResourceId, will use fullNameExt to search : ${fullNameExt}`);
                     resourceSearchString = fullNameExt;
                     originalResource = await getResourceByFilename(resourceSearchString);
                     
                     if (originalResource.items.length == 1) {
-                        console.debug(`deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
+                        console.debug(`##DEBUG: deleteResources: originalResource.items.length = 1: ${originalResource.items.length}`);
                         resourceId = originalResource.items[0].id;
                         resourceTitle = originalResource.items[0].title;
                         resourceUserCreatedTime = originalResource.items[0].user_created_time;
                         console.info(`Resource found with search: ${resourceSearchString}. Its Resource Id is: ${resourceId}`);
-                        console.debug(`deleteResources: resourceTitle: ${resourceTitle} & resourceUserCreatedTime: ${resourceUserCreatedTime}`);
+                        console.debug(`##DEBUG: deleteResources: resourceTitle: ${resourceTitle} & resourceUserCreatedTime: ${resourceUserCreatedTime}`);
                     } else if (originalResource.items.length > 1) {
-                        console.debug(`deleteResources: originalResource.items.length > 1: ${originalResource.items.length}`);
+                        console.debug(`##DEBUG: deleteResources: originalResource.items.length > 1: ${originalResource.items.length}`);
                         console.info(`More than one resource found with search: ${resourceSearchString}. Not proceeding.`);
                     } else {
                         console.info(`No resource found with search: ${resourceSearchString}. Not proceeding.`);
@@ -76,8 +80,8 @@ export async function deleteResources(): Promise<void> {
             }
         }
 
-        if ((resourceId) && (resourceTitle) && (resourceUserCreatedTime)) {
-            console.debug(`deleteResources: resourceId ${resourceId}, resourceTitle ${resourceTitle} & resourceUserCreatedTime ${resourceUserCreatedTime} all have values, proceed with delete`);
+        if ((resourceId) && (resourceUserCreatedTime)) {
+            console.debug(`##DEBUG: deleteResources: resourceId ${resourceId}, resourceTitle ${resourceTitle} & resourceUserCreatedTime ${resourceUserCreatedTime} all have values, proceed with delete`);
             try {
                 let deleteResourceStatus = await deleteResource(resourceId);
 
@@ -86,11 +90,11 @@ export async function deleteResources(): Promise<void> {
                     let fileMove = await fs.move(filePath, step1DirAndFile);
                     console.info(`Resource deleted, file moved: ${fullNameExt}`);
                     let fileResourceReplace = [filename + fileExt, resourceId, resourceTitle, resourceUserCreatedTime].join(fileSeparator) + fileExtReplace;
-                    console.debug(`deleteResources: fileResourceReplace: ${fileResourceReplace}`);
+                    console.debug(`##DEBUG: deleteResources: fileResourceReplace: ${fileResourceReplace}`);
                     let fileResourceReplacePath = path.join(step1Dir, fileResourceReplace);
                     fs.ensureFileSync(fileResourceReplacePath);
-                    console.debug(`.replace file created: ${fileResourceReplacePath}`);
-
+                    console.debug(`##DEBUG: .replace file created: ${fileResourceReplacePath}`);
+                    
                     createResourcesProceed = true;
                 } catch (error) {
                     console.error(`ERROR - moving to replaced directory: ${error}`);
@@ -98,26 +102,30 @@ export async function deleteResources(): Promise<void> {
             } catch (error) {
                 console.error(`ERROR - DELETE Resource: ${resourceId} / ${fullNameExt} ${error}`);
             }
+        } else {
+            console.debug(`##DEBUG: NOT PROCEEDING with delete: deleteResources: resourceId: ${resourceId}, resourceTitle: ${resourceTitle}, resourceUserCreatedTime: ${resourceUserCreatedTime}`);
         }
     };
 
     if (createResourcesProceed) {
-        console.debug(`deleteResources: createResourcesProceed: ${createResourcesProceed}`);
+        console.debug(`##DEBUG: deleteResources: createResourcesProceed: ${createResourcesProceed}`);
         let isSyncConfigured = false;
-
+        
         try {
             isSyncConfigured = await syncConfigured();
         } catch (error) {
             console.error(`ERROR - isSyncConfigured: ${error}`);
         }
-
+        
         if (isSyncConfigured) {
             console.info(`Running Synchronise for you - do NOT cancel!`);
             let startSync = await executeSync();
         } else {
-            console.debug(`No need to wait for sync, going straight to createResources`);
+            console.debug(`##DEBUG: No need to wait for sync, going straight to createResources`);
             let goToCreateResources = await createResources();
         }
+    } else {
+        console.debug(`##DEBUG: deleteResources: createResourcesProceed: ${createResourcesProceed}`);
     }
 }
 
@@ -127,11 +135,11 @@ export async function createResources() {
     for (const fullNameExtReplace of allStep1Files) {
         
         if ( regExpFileResourceReplace.test(fullNameExtReplace) ) {
-            console.debug(`createResources: fullNameExtReplace is a REPLACE file: ${fullNameExtReplace}`)
+            console.debug(`##DEBUG: createResources: fullNameExtReplace is a REPLACE file: ${fullNameExtReplace}`)
             let fileExt = path.extname(fullNameExtReplace);
             let fullName = path.basename(fullNameExtReplace, fileExt);            
             let fullNameSplit = fullName.split(fileSeparator);
-            console.debug(`createResources: fullNameSplit: ${fullNameSplit}`)
+            console.debug(`##DEBUG: createResources: fullNameSplit: ${fullNameSplit}`)
             let filenameExt = fullNameSplit[0];
             let resourceId = fullNameSplit[1];
             let resourceTitle = fullNameSplit[2];
@@ -142,40 +150,39 @@ export async function createResources() {
             let step2DirAndFile = path.join(step2Dir, filenameExt);
             
             try {
-                console.debug(`about to postResource: ${resourceTitle} with resourceId ${resourceId}`);
+                console.debug(`##DEBUG: about to postResource: ${resourceTitle} with resourceId ${resourceId}`);
                 let post = await postResource(resourceId, step1DirAndFile, resourceTitle);
-                console.debug(`about to putResource: ${resourceId} with UserCreatedTime ${resourceUserCreatedTime}`);
+                console.debug(`##DEBUG: about to putResource: ${resourceId} with UserCreatedTime ${resourceUserCreatedTime}`);
                 let put = await putResource(resourceId, resourceUserCreatedTime);
                 try {
                     let fileMove = await fs.move(step1DirAndFile, step2DirAndFile, { overwrite: true });
                     let fileMoveReplace = await fs.removeSync(step1DirAndFileReplace);
                 } catch (error) {
                     console.error(`ERROR - moving files to step 2 directory: ${error}`);
-                }   
-                console.info(`Attachment replaced, file moved: ${resourceTitle}`);
+                }
+                console.info(`Attachment replaced, file moved with id: ${resourceId}`);
             } catch (error) {
                 console.error(`ERROR - with either POST and PUT Resource: file: ${resourceTitle} with resource id: ${resourceId} ${error}`);
-            }       
+            }
         }
     }
 
     // Need to wait until after the above has completed
     let isRunOnStartAndAfterSync = await runOnStartAndAfterSyncSetting();
-    console.debug(`isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
+    console.debug(`##DEBUG: isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
     if (isRunOnStartAndAfterSync) {
         let isRunOnStartAndAfterSyncExec = await deleteResources();
     }
-
 }
 
 export async function syncConfiguredAndRunOnStart() {
     let isSyncConfigured = await syncConfigured();
-    console.debug(`isSyncConfigured: ${isSyncConfigured}`);
+    console.debug(`##DEBUG: isSyncConfigured: ${isSyncConfigured}`);
     let isRunOnStartAndAfterSync = await runOnStartAndAfterSyncSetting();
-    console.debug(`isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
+    console.debug(`##DEBUG: isRunOnStartAndAfterSync: ${isRunOnStartAndAfterSync}`);
 
     if (!isSyncConfigured && isRunOnStartAndAfterSync) {
-        console.debug(`!syncConfigured && runOnStartAndAfterSync`);
+        console.debug(`##DEBUG: !syncConfigured && runOnStartAndAfterSync`);
     	await deleteResources();
     }
 }

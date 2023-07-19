@@ -187,7 +187,42 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
 
-  test(`5-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled`, async () => {
+  test(`5-Attachment name format DOES match resource + sync config enabled + title is null/undefined`, async () => {
+    console.debug(`#######################TEST-5-Attachment name format DOES match resource + sync config enabled + title is null/undefined#######################`);
+    const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
+    fs.writeFileSync(filePathExt, "file");
+    expect(fs.existsSync(filePathExt)).toBe(true);
+
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    let resourceReturned: resourceByFileName = {
+      id: resourceIdFormat,
+      title: '',
+      user_created_time: createdTime,
+    };
+    let itemsReturned = new Array<resourceByFileName>(resourceReturned);
+    let resultsReturned: apiSearchResult = {
+      items: itemsReturned,
+    };
+    mockgetResource.mockResolvedValue(resultsReturned);
+
+    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    mockdeleteResource.mockResolvedValue(true);
+    const mocksyncConfigured = syncConfigured as jest.MockedFunction<typeof syncConfigured>;
+    mocksyncConfigured.mockResolvedValue(true);
+
+    await deleteResources();
+    expect(getResourceById).toHaveBeenCalledTimes(0);
+    expect(getResourceByFilename).toHaveBeenCalledTimes(1);
+    expect(deleteResource).toHaveBeenCalledTimes(1);
+    expect(syncConfigured).toHaveBeenCalledTimes(1);
+    expect(executeSync).toHaveBeenCalledTimes(1);
+    await createResources();
+    expect(postResource).toHaveBeenCalledTimes(1);
+    expect(putResource).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(filePathExt)).toBe(false);
+  });
+
+  test(`6-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled`, async () => {
     console.debug(`#######################TEST-5-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled#######################`);
     const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
@@ -227,7 +262,7 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(filePathExt)).toBe(false);
   });
 
-  test(`6-ensure replace completes subsequent times without manual removal of files from step 2 directory`, async () => {
+  test(`7-ensure replace completes subsequent times without manual removal of files from step 2 directory`, async () => {
     console.debug(`#######################TEST-6-ensure replace completes subsequent times without manual removal of files from step 2 directory#######################`);
     let filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");

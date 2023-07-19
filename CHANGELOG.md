@@ -2,6 +2,14 @@
 
 ## not released
 
+## v1.2.0 (2023-07-18)
+
+FIX: handle attachment resources that do not have title values (e.g. iPhone image upload).
+IMPROVED: now able to browse for file location in settings.
+IMPROVED: minor update to menu option name.
+IMPROVED: better info logs in console.
+DOCS: detail added to README re: importance of taking backups and original attachment resource name not being changed.
+
 ## v1.1.1 (2022-01-03)
 
 IMPROVED: no need to remove files from step 2 directory for subsequent replacements.
