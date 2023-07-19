@@ -1,5 +1,5 @@
 import joplin from "api";
-import { SettingItemType } from "api/types";
+import { SettingItemType, SettingItemSubType } from "api/types";
 import { MenuItemLocation } from "api/types";
 import { createResources, deleteResources } from "./replaceResources";
 
@@ -7,16 +7,17 @@ export async function registerSettings(): Promise<void> {
   await joplin.settings.registerSection("AttachéSection", {
     label: "Attaché",
     iconName: "fas fa-exchange-alt",
+    description: "Choose the location of files that will replace your resources. Restarting Joplin will create this if doesn't exist.",
   });
 
   await joplin.settings.registerSettings({
     filesPath: {
       value: "",
       type: SettingItemType.String,
+      subType: SettingItemSubType.DirectoryPath,
       section: "AttachéSection",
       public: true,
-      label: "Files Path",
-      description: "Path to files that will replace your resources. Restarting Joplin will create this path if doesn't exist.",
+      label: "",
     },
   });
   
@@ -35,7 +36,7 @@ export async function registerSettings(): Promise<void> {
 export async function registerCommand(): Promise<void> {    
     await joplin.commands.register({
         name: "Attaché",
-        label: "Replace/update attachments",
+        label: "Attaché - replace/update attachments",
         execute: async () => {
             await deleteResources();
         }
@@ -44,7 +45,7 @@ export async function registerCommand(): Promise<void> {
 
 export async function onSyncCompleteEvent(): Promise<void> {
     joplin.workspace.onSyncComplete(async (event: any) => {
-        console.debug(`onSyncComplete event has occurred, about to call createResources`);
+        console.debug(`##DEBUG: onSyncComplete event has occurred, about to call createResources`);
         await createResources();
     });
 }
