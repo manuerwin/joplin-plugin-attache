@@ -19,12 +19,15 @@ First backup your data!
 
 Then configure the Plugin under `Preferences > Plugins > Attaché` (Mac) OR `Tools > Options > Attaché` (PC?)
 
+Please be aware there is no UI (other than the dev console) as Attaché runs in the background.
+
 Note: due to Joplin's synchronisation conflict safeguards, this is a two-step automated process.
 
 ## Manual use
 After setting the configuration settings and restarting, the file and processing sub-directories are automatically created for you.
 
-There has been a report of problems processing a large number of replacement files (8000+), please backup your Joplin data by using the easy export option, perform a small test to make sure all works ok for you. and suggest not touching Joplin notes/resources while the replacement is happening.
+There has been a report of problems processing a very large number of replacement files (8000+), please backup your Joplin data by using the easy export option, perform a small test to make sure all works ok for you.
+Also suggest not touching Joplin notes/resources while the replacement is happening.
 
 ### Step One - deleting resources and sync'ing
 Move your source files into the files path that you entered/choose in settings. Your source files can be named in two ways:

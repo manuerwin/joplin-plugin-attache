@@ -2,6 +2,9 @@
 
 ## not released
 
+
+DOCS: minor updates to README - there is no UI
+
 ## v1.2.0 (2023-07-18)
 
 FIX: handle attachment resources that do not have title values (e.g. iPhone image upload).
