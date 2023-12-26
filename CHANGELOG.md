@@ -2,8 +2,10 @@
 
 ## not released
 
+## v1.3.0 (2023-12-26)
 
-DOCS: minor updates to README - there is no UI
+CHORE: updating Jopin framework. May also close out issue #19.
+DOCS: minor updates to README - there is no UI.
 
 ## v1.2.0 (2023-07-18)
 

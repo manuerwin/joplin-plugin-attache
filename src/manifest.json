@@ -1,8 +1,8 @@
 {
 	"manifest_version": 1,
 	"id": "io.github.manuerwin.attache",
-	"app_min_version": "2.6.9",
-	"version": "1.2.0",
+	"app_min_version": "2.13.11",
+	"version": "1.3.0",
 	"name": "Attaché",
 	"description": "Your attachment updater. Mass replacement of Joplin attachments (resources) such as resized image files, current music playlists, and any other attachments you need to one-off or regularly update within Joplin.",
 	"author": "Manu Erwin",
