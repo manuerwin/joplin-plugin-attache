@@ -223,7 +223,7 @@ describe("Replace Resources", function () {
   });
 
   test(`6-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled`, async () => {
-    console.debug(`#######################TEST-5-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled#######################`);
+    console.debug(`#######################TEST-6-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled#######################`);
     const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
@@ -263,7 +263,7 @@ describe("Replace Resources", function () {
   });
 
   test(`7-ensure replace completes subsequent times without manual removal of files from step 2 directory`, async () => {
-    console.debug(`#######################TEST-6-ensure replace completes subsequent times without manual removal of files from step 2 directory#######################`);
+    console.debug(`#######################TEST-7-ensure replace completes subsequent times without manual removal of files from step 2 directory#######################`);
     let filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
