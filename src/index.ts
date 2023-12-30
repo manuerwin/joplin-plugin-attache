@@ -7,14 +7,14 @@ joplin.plugins.register({
 		console.log("onStart Attaché plugin");
 		await registerSettings();
 
-		await init();
-
 		await registerCommand();
-		
+
 		await createMenuItems();
 
+		await init();
+
 		await onSyncCompleteEvent();
-		
+
 		await syncConfiguredAndRunOnStart();
 	},
 });
