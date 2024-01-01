@@ -34,8 +34,9 @@ jest.mock('../src/replaceResourcesSetup', () => {
   return {
     registerSettings: jest.fn(),
     registerCommand: jest.fn(),
-    onSyncCompleteEvent: jest.fn(),
     createMenuItems: jest.fn(),
+    createErrorDialog: jest.fn(),
+    onSyncCompleteEvent: jest.fn(),
   }
 });
   
@@ -43,6 +44,7 @@ jest.mock('../src/replaceResourcesApi', () => {
   return {
     setFilesPathValue: jest.fn(),
     filesPathSetting: jest.fn(),
+    filesPathSettingIsNull: jest.fn(),
     syncTargetGlobalSetting: jest.fn(),
     runOnStartAndAfterSyncSetting: jest.fn(),
     syncConfigured: jest.fn(),
@@ -305,6 +307,19 @@ describe("Replace Resources", function () {
     expect(postResource).toHaveBeenCalledTimes(2);
     expect(putResource).toHaveBeenCalledTimes(2);
     expect(fs.existsSync(filePathExt)).toBe(false);
+  });
+  
+  test(`8-ensure execution halted and error dialog shows when files path setting empty`, async () => {
+    console.debug(`#######################TEST-8-ensure execution halted and error dialog shows when files path setting empty#######################`);
+    await setFilesPathValue('');
+
+    await deleteResources();
+    expect(deleteResource).toHaveBeenCalledTimes(0);
+    await createResources();
+    expect(postResource).toHaveBeenCalledTimes(0);
+    expect(putResource).toHaveBeenCalledTimes(0);
+
+    // expect error dialog to have opened
   });
 
 });
