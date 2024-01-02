@@ -1,6 +1,5 @@
 import joplin from "api";
-import { SettingItemType, SettingItemSubType } from "api/types";
-import { MenuItemLocation } from "api/types";
+import { SettingItemType, SettingItemSubType, MenuItemLocation } from "api/types";
 import { createResources, deleteResources } from "./replaceResources";
 
 export async function registerSettings(): Promise<void> {
