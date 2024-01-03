@@ -42,8 +42,6 @@ jest.mock('../src/replaceResourcesSetup', () => {
 jest.mock('../src/replaceResourcesApi', () => {
   return {
     filesPathSetting: jest.fn(),
-    filesPathSettingIsNull: jest.fn(),
-    syncTargetGlobalSetting: jest.fn(),
     runOnStartAndAfterSyncSetting: jest.fn(),
     syncConfigured: jest.fn(),
     getResourceByFilename: jest.fn(),
