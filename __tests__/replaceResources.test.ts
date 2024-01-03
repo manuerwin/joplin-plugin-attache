@@ -59,7 +59,6 @@ jest.mock('../src/replaceResourcesApi', () => {
 
 describe("Replace Resources", function () {
   beforeAll(async () => {
-    await setFilesPathValue(testBaseDir);
     const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
     mockFilesPathSetting.mockResolvedValue(testBaseDir);
     let testBaseDirSettingValue = await filesPathSetting();
