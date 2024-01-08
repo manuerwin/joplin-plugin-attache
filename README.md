@@ -43,7 +43,7 @@ Please be aware there is no UI as Attaché runs in the background.
 ___NOTE___ due to Joplin's synchronisation conflict safeguards, file/resource replace is a two-step process that is automated for you by the plugin.
 
 ## <a name='Manualuse'></a>Manual use
-After backing up your data, defining the configuration settings and restarting Joplin, the file and processing sub-directories are automatically created for you.
+After backing up your data, defining the configuration settings, and RESTARTING Joplin, the file and processing sub-directories are automatically created for you.
 
 ___CAUTION___ There has been a report of problems processing a very large number of replacement files (8000+), please backup your Joplin data (for example; by using the easy export option), then perform a small test to make sure all works ok for you. Suggest not touching Joplin notes/resources while the replacement is happening. Also take note of how source files can be named below.
 

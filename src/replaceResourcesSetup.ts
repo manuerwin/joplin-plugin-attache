@@ -6,7 +6,7 @@ export async function registerSettings(): Promise<void> {
   await joplin.settings.registerSection("AttachéSection", {
     label: "Attaché",
     iconName: "fas fa-exchange-alt",
-    description: "Choose the location of files that will replace your resources. Restarting Joplin will create this if doesn't exist.",
+    description: "RESTART JOPLIN AFTER CHANGING THESE SETTINGS!",
   });
 
   await joplin.settings.registerSettings({
@@ -16,7 +16,7 @@ export async function registerSettings(): Promise<void> {
       subType: SettingItemSubType.DirectoryPath,
       section: "AttachéSection",
       public: true,
-      label: "",
+      label: "Choose the location of files that will replace your resources.",
     },
   });
   
