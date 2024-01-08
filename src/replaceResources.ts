@@ -116,7 +116,7 @@ export async function deleteResources(): Promise<void> {
                             
                             createResourcesProceed = true;
                         } catch (error) {
-                            console.error(`ERROR - moving to replaced directory: ${error}`);
+                            console.error(`ERROR - moving files to step 1 directory: ${error}`);
                         }
                     } catch (error) {
                         console.error(`ERROR - DELETE Resource: ${resourceId} / ${fullNameExt} ${error}`);
