@@ -334,34 +334,74 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(filePathExt)).toBe(false);
     expect(fs.existsSync(filePathExtSuccess)).toBe(true);
     expect(fs.existsSync(replacefilePathExtSuccess)).toBe(true);
-
     expect(showErrorDialog).toHaveBeenCalledTimes(0);
   });
   
   test(`8-ensure execution halted and error dialog shows when files path setting empty`, async () => {
     console.debug(`#######################TEST-8-ensure execution halted and error dialog shows when files path setting empty#######################`);
-    // await setFilesPathValue('');
+    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
+    mockFilesPathSetting.mockResolvedValue(null);
+    let testBaseDirSettingValue = await filesPathSetting();
+    expect(testBaseDirSettingValue).toBe(null);
 
+    await syncConfiguredAndRunOnStart();
     await deleteResources();
     expect(deleteResource).toHaveBeenCalledTimes(0);
     await createResources();
     expect(postResource).toHaveBeenCalledTimes(0);
     expect(putResource).toHaveBeenCalledTimes(0);
-
-    expect(showErrorDialog).toHaveBeenCalled;
+    expect(showErrorDialog).toHaveBeenCalledTimes(3);
   });
   
-  test(`9-ensure updated path setting works`, async () => {
-    console.debug(`#######################TEST-9-ensure updated path setting works#######################`);
-    // await setFilesPathValue('');
+  test(`9-replacement occurs after re-adding files path setting`, async () => {
+    console.debug(`#######################TEST-9-replacement occurs after re-adding files path setting#######################`);
+    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
+    mockFilesPathSetting.mockResolvedValue(null);
+    let testBaseDirSettingValue = await filesPathSetting();
+    expect(testBaseDirSettingValue).toBe(null);
 
+    await syncConfiguredAndRunOnStart();
     await deleteResources();
     expect(deleteResource).toHaveBeenCalledTimes(0);
     await createResources();
     expect(postResource).toHaveBeenCalledTimes(0);
     expect(putResource).toHaveBeenCalledTimes(0);
+    expect(executeSync).toHaveBeenCalledTimes(0);
+    expect(showErrorDialog).toHaveBeenCalledTimes(3);
 
-    expect(showErrorDialog).toHaveBeenCalled;
+    mockFilesPathSetting.mockResolvedValue(testBaseDir);
+    testBaseDirSettingValue = await filesPathSetting();
+    expect(testBaseDirSettingValue).toBe(testBaseDir);
+
+    const filePathExt = path.join(testBaseDir, resourceIdFormatFilename);
+    fs.writeFileSync(filePathExt, "file");
+    expect(fs.existsSync(filePathExt)).toBe(true);
+
+    const filePathExtSuccess = path.join(step2Dir, resourceIdFormatFilename);
+    const replacefilePathExtSuccess = path.join(step2Dir, generateReplaceFileName(resourceIdFormat, fileExt, resourceIdFormat, resourceIdFormatFilename, createdTime));
+
+    const mockgetResourceById = getResourceById as jest.MockedFunction<typeof getResourceById>;
+    let resourceReturned: resourceById = {
+      id: resourceIdFormat,
+      title: resourceIdFormatFilename,
+      user_created_time: createdTime,
+    };
+    mockgetResourceById.mockResolvedValue(resourceReturned);
+
+    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    mockdeleteResource.mockResolvedValue(true);
+
+    await deleteResources();
+    expect(getResourceByFilename).toHaveBeenCalledTimes(0);
+    expect(getResourceById).toHaveBeenCalledTimes(1);
+    expect(deleteResource).toHaveBeenCalledTimes(1);
+    expect(executeSync).toHaveBeenCalledTimes(0);
+    expect(postResource).toHaveBeenCalledTimes(1);
+    expect(putResource).toHaveBeenCalledTimes(1);
+    expect(fs.existsSync(filePathExt)).toBe(false);
+    expect(fs.existsSync(filePathExtSuccess)).toBe(true);
+    expect(fs.existsSync(replacefilePathExtSuccess)).toBe(true);
+    expect(showErrorDialog).toHaveBeenCalledTimes(3);
   });
 
 });
