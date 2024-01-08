@@ -1,6 +1,5 @@
 import joplin from "api";
-import { SettingItemType, SettingItemSubType } from "api/types";
-import { MenuItemLocation } from "api/types";
+import { SettingItemType, SettingItemSubType, MenuItemLocation } from "api/types";
 import { createResources, deleteResources } from "./replaceResources";
 
 export async function registerSettings(): Promise<void> {
@@ -51,9 +50,28 @@ export async function onSyncCompleteEvent(): Promise<void> {
 }
 
 export async function createMenuItems(): Promise<void> {
-    await joplin.views.menuItems.create(
-        "myMenuItemToolsAttaché",
-        "Attaché",  
-        MenuItemLocation.Tools
+  await joplin.views.menuItems.create(
+    "myMenuItemToolsAttaché",
+    "Attaché",  
+    MenuItemLocation.Tools
     );
+  }
+
+export async function createErrorDialog(): Promise<string> {
+  let dialog = joplin.views.dialogs;
+  let handle = await dialog.create('errorDialog');
+  await dialog.setButtons(handle, [
+      {
+      id: 'Close',
+      },
+  ]);
+  await dialog.setHtml(handle,
+      ` <h2>Attaché - Error :(</h2>
+      <p>Files Path Setting is missing, cannot proceed!</p> 
+      <p>Please configure via Plugin Settings > Attaché > Path :)</p> `);
+  return handle;
+}
+
+export async function showErrorDialog(handle: string): Promise<void> {
+    await joplin.views.dialogs.open(handle);
 }

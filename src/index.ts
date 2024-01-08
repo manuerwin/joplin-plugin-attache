@@ -4,16 +4,12 @@ import { createMenuItems, onSyncCompleteEvent, registerSettings, registerCommand
 
 joplin.plugins.register({
 	onStart: async function () {
+		console.log("onStart Attaché plugin");
 		await registerSettings();
-
-		await init();
-
 		await registerCommand();
-
-		await onSyncCompleteEvent();
-		
 		await createMenuItems();
-		
+		await init();
+		await onSyncCompleteEvent();
 		await syncConfiguredAndRunOnStart();
 	},
 });
