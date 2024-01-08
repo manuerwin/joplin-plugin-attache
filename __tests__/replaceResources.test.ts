@@ -54,7 +54,11 @@ jest.mock('../src/replaceResourcesApi', () => {
 });
 
 describe("Replace Resources", function () {
-  beforeAll(async () => {
+  
+  beforeEach(async () => {
+    jest.restoreAllMocks();
+    jest.clearAllMocks();
+    jest.resetAllMocks();
     const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
     mockFilesPathSetting.mockResolvedValue(testBaseDir);
     let testBaseDirSettingValue = await filesPathSetting();
@@ -62,10 +66,6 @@ describe("Replace Resources", function () {
     
     fs.emptyDirSync(sourceFilesDir);
     expect(fs.pathExistsSync(sourceFilesDir)).toBe(true);
-  });
-  
-  beforeEach(async () => {
-    jest.clearAllMocks();
     fs.emptyDirSync(testBaseDir);
     await init();
   });
