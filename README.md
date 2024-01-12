@@ -36,9 +36,10 @@ ___Backup your data!___
 Then configure the Plugin via `Preferences > Plugins > Attaché` (Mac) OR `Tools > Options > Attaché` (PC?).
 
 ___NOTE___ Make sure a value is set for the Path configuration value that defines the location of the files that will replace your existing resources.
-![Attaché_plugin_config_options](/img/Attaché_plugin_config_options.png)
 
-Please be aware there is no UI as Attaché runs in the background.
+<img width="772" alt="Attaché_plugin_config_options" src="https://github.com/manuerwin/joplin-plugin-attache/assets/982158/0b05195a-8d4c-4caf-b1bd-35f4db058513">
+
+Please be aware there is no UI (other than an error dialog message) as Attaché runs in the background.
 
 ___NOTE___ due to Joplin's synchronisation conflict safeguards, file/resource replace is a two-step process that is automated for you by the plugin.
 
@@ -85,7 +86,7 @@ At any time, move your source files into the Path file location, and either rest
 | `Files Path`    | Where to obtain the replacement files that will replace existing resources. See Step One above for the two formats that replacement filenames can have. All others will be ignored. |  | YES |
 | `Run on start and after sync`  | If checked (i.e. true), Attaché will run immediately after Joplin starts and after each synchronisation.    | unchecked (i.e. will NOT run on start or after sync by default) | Optional |
 
-![Attaché_plugin_config_options](/img/Attaché_plugin_config_options.png)
+<img width="772" alt="Attaché_plugin_config_options" src="https://github.com/manuerwin/joplin-plugin-attache/assets/982158/0b05195a-8d4c-4caf-b1bd-35f4db058513">
 
 # Changelog
 
