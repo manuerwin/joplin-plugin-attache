@@ -2,6 +2,10 @@
 
 ## not released
 
+## v1.3.1 (2024-01-12)
+
+fix: show error message when path files setting is missing, plus clearer instructions around settings and the need to restart Joplin after settings changed.
+
 ## v1.3.0 (2023-12-26)
 
 CHORE: updating Jopin framework. May also close out issue #19.
