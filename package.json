@@ -10,8 +10,9 @@
     "gitRelease": "node ./node_modules/joplinplugindevtools/dist/createRelease.js --upload",
     "gitPreRelease": "node ./node_modules/joplinplugindevtools/dist/createRelease.js --upload --prerelease",
     "test": "jest",
-    "dev": "npm run prepare && npm run test && /Applications/Joplin.app/Contents/MacOS/Joplin --env dev",
-    "build": "npm run prepare && npm run test",
+    "btr": "npm run prepare && npm run test && /Applications/Joplin.app/Contents/MacOS/Joplin --env dev",
+    "bt": "npm run prepare && npm run test",
+    "dev": "/Applications/Joplin.app/Contents/MacOS/Joplin --env dev",
     "updateVersion": "webpack --env joplin-plugin-config=updateVersion"
   },
   "license": "GNU GPL3",
