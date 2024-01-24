@@ -2,6 +2,11 @@
 
 ## not released
 
+## v1.3.2 (2024-01-24)
+
+chore: Bump dependencies (follow-redirects, node-fetch and @joplin/lib, plus npm update)
+formatting: run prettier
+
 ## v1.3.1 (2024-01-12)
 
 fix: show error message when path files setting is missing, plus clearer instructions around settings and the need to restart Joplin after settings changed.

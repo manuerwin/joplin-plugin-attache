@@ -1,5 +1,9 @@
 import joplin from "api";
-import { SettingItemType, SettingItemSubType, MenuItemLocation } from "api/types";
+import {
+  SettingItemType,
+  SettingItemSubType,
+  MenuItemLocation,
+} from "api/types";
 import { createResources, deleteResources } from "./replaceResources";
 
 export async function registerSettings(): Promise<void> {
@@ -19,7 +23,7 @@ export async function registerSettings(): Promise<void> {
       label: "Choose the location of files that will replace your resources.",
     },
   });
-  
+
   await joplin.settings.registerSettings({
     runOnStartAndAfterSync: {
       value: false,
@@ -27,51 +31,56 @@ export async function registerSettings(): Promise<void> {
       section: "AttachéSection",
       public: true,
       label: "Run on start and after sync",
-      description: "If checked true, Attaché will run immediately after Joplin starts and after each synchronisation. The default value is unchecked (false).",
+      description:
+        "If checked true, Attaché will run immediately after Joplin starts and after each synchronisation. The default value is unchecked (false).",
     },
   });
 }
 
-export async function registerCommand(): Promise<void> {    
-    await joplin.commands.register({
-        name: "Attaché",
-        label: "Attaché - replace/update attachments",
-        execute: async () => {
-            await deleteResources();
-        }
-    });
+export async function registerCommand(): Promise<void> {
+  await joplin.commands.register({
+    name: "Attaché",
+    label: "Attaché - replace/update attachments",
+    execute: async () => {
+      await deleteResources();
+    },
+  });
 }
 
 export async function onSyncCompleteEvent(): Promise<void> {
-    joplin.workspace.onSyncComplete(async (event: any) => {
-        console.debug(`##DEBUG: onSyncComplete event has occurred, about to call createResources`);
-        await createResources();
-    });
+  joplin.workspace.onSyncComplete(async (event: any) => {
+    console.debug(
+      `##DEBUG: onSyncComplete event has occurred, about to call createResources`
+    );
+    await createResources();
+  });
 }
 
 export async function createMenuItems(): Promise<void> {
   await joplin.views.menuItems.create(
     "myMenuItemToolsAttaché",
-    "Attaché",  
+    "Attaché",
     MenuItemLocation.Tools
-    );
-  }
+  );
+}
 
 export async function createErrorDialog(): Promise<string> {
   let dialog = joplin.views.dialogs;
-  let handle = await dialog.create('errorDialog');
+  let handle = await dialog.create("errorDialog");
   await dialog.setButtons(handle, [
-      {
-      id: 'Close',
-      },
+    {
+      id: "Close",
+    },
   ]);
-  await dialog.setHtml(handle,
-      ` <h2>Attaché - Error :(</h2>
+  await dialog.setHtml(
+    handle,
+    ` <h2>Attaché - Error :(</h2>
       <p>Files Path Setting is missing, cannot proceed!</p> 
-      <p>Please configure via Plugin Settings > Attaché > Path :)</p> `);
+      <p>Please configure via Plugin Settings > Attaché > Path :)</p> `
+  );
   return handle;
 }
 
 export async function showErrorDialog(handle: string): Promise<void> {
-    await joplin.views.dialogs.open(handle);
+  await joplin.views.dialogs.open(handle);
 }

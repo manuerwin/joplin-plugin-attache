@@ -1,34 +1,57 @@
 import * as path from "path";
 import * as fs from "fs-extra";
-import { init, deleteResources, createResources, syncConfiguredAndRunOnStart, generateReplaceFileName } from '../src/replaceResources';
-import { deleteResource, filesPathSetting, getResourceByFilename, getResourceById, syncConfigured, postResource, putResource, executeSync, runOnStartAndAfterSyncSetting } from '../src/replaceResourcesApi';
-import { registerSettings, registerCommand, createMenuItems, onSyncCompleteEvent, createErrorDialog, showErrorDialog } from '../src/replaceResourcesSetup';
+import {
+  init,
+  deleteResources,
+  createResources,
+  syncConfiguredAndRunOnStart,
+  generateReplaceFileName,
+} from "../src/replaceResources";
+import {
+  deleteResource,
+  filesPathSetting,
+  getResourceByFilename,
+  getResourceById,
+  syncConfigured,
+  postResource,
+  putResource,
+  executeSync,
+  runOnStartAndAfterSyncSetting,
+} from "../src/replaceResourcesApi";
+import {
+  registerSettings,
+  registerCommand,
+  createMenuItems,
+  onSyncCompleteEvent,
+  createErrorDialog,
+  showErrorDialog,
+} from "../src/replaceResourcesSetup";
 
 const testBaseDir = path.join(__dirname, "ReplaceResourcesTest");
 const step2Dir = path.join(testBaseDir, "Step 2 - Resource Replaced");
 const sourceFilesDir = path.join(__dirname, "ReplaceResourcesSourceFiles");
 const createdTime = 1000000000000;
-const fileExt = '.png';
-const resourceIdFormat = 'ResourcexxxxIdxxxxFormatxxxx0001';
+const fileExt = ".png";
+const resourceIdFormat = "ResourcexxxxIdxxxxFormatxxxx0001";
 const resourceIdFormatFilename = resourceIdFormat + fileExt;
-const attachmentNameFormat = 'attachmentNameFormat';
+const attachmentNameFormat = "attachmentNameFormat";
 const attachmentNameFormatFilename = attachmentNameFormat + fileExt;
 
 interface resourceById {
   id: string;
   title: string;
-  user_created_time: number,
-};
+  user_created_time: number;
+}
 interface resourceByFileName {
   id: string;
   title: string;
   user_created_time: number;
-};
+}
 interface apiSearchResult {
   items: resourceByFileName[];
-};
+}
 
-jest.mock('../src/replaceResourcesSetup', () => {
+jest.mock("../src/replaceResourcesSetup", () => {
   return {
     registerSettings: jest.fn(),
     registerCommand: jest.fn(),
@@ -36,10 +59,10 @@ jest.mock('../src/replaceResourcesSetup', () => {
     onSyncCompleteEvent: jest.fn(),
     createErrorDialog: jest.fn(),
     showErrorDialog: jest.fn(),
-  }
+  };
 });
-  
-jest.mock('../src/replaceResourcesApi', () => {
+
+jest.mock("../src/replaceResourcesApi", () => {
   return {
     filesPathSetting: jest.fn(),
     runOnStartAndAfterSyncSetting: jest.fn(),
@@ -50,26 +73,27 @@ jest.mock('../src/replaceResourcesApi', () => {
     postResource: jest.fn(),
     putResource: jest.fn(),
     executeSync: jest.fn(),
-  }
+  };
 });
 
 describe("Replace Resources", function () {
-  
   beforeEach(async () => {
     jest.restoreAllMocks();
     jest.clearAllMocks();
     jest.resetAllMocks();
-    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
+    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<
+      typeof filesPathSetting
+    >;
     mockFilesPathSetting.mockResolvedValue(testBaseDir);
     let testBaseDirSettingValue = await filesPathSetting();
     expect(testBaseDirSettingValue).toBe(testBaseDir);
-    
+
     fs.emptyDirSync(sourceFilesDir);
     expect(fs.pathExistsSync(sourceFilesDir)).toBe(true);
     fs.emptyDirSync(testBaseDir);
     await init();
   });
-  
+
   afterEach(async () => {
     fs.removeSync(testBaseDir);
   });
@@ -79,13 +103,17 @@ describe("Replace Resources", function () {
   });
 
   test(`1-Resource Id format does NOT match resource + sync config either enabled or disabled`, async () => {
-    console.debug(`#######################TEST-1-Resource Id format does NOT match resource + sync config either enabled or disabled#######################`);
+    console.debug(
+      `#######################TEST-1-Resource Id format does NOT match resource + sync config either enabled or disabled#######################`
+    );
     const filePathExt = path.join(testBaseDir, resourceIdFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResource = getResourceById as jest.MockedFunction<typeof getResourceById>;
-    mockgetResource.mockImplementation( () => {
+    const mockgetResource = getResourceById as jest.MockedFunction<
+      typeof getResourceById
+    >;
+    mockgetResource.mockImplementation(() => {
       throw new Error();
     });
 
@@ -101,12 +129,16 @@ describe("Replace Resources", function () {
   });
 
   test(`2-Attachment format does NOT match resource + sync config either enabled or disabled`, async () => {
-    console.debug(`#######################TEST-2-Attachment format does NOT match resource + sync config either enabled or disabled#######################`);
+    console.debug(
+      `#######################TEST-2-Attachment format does NOT match resource + sync config either enabled or disabled#######################`
+    );
     const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<
+      typeof getResourceByFilename
+    >;
     let itemsReturned = [];
     let resultsReturned: apiSearchResult = {
       items: itemsReturned,
@@ -124,15 +156,28 @@ describe("Replace Resources", function () {
   });
 
   test(`3-Resource Id format DOES match resource + sync config disabled`, async () => {
-    console.debug(`#######################TEST-3-Resource Id format DOES match resource + sync config disabled#######################`);
+    console.debug(
+      `#######################TEST-3-Resource Id format DOES match resource + sync config disabled#######################`
+    );
     const filePathExt = path.join(testBaseDir, resourceIdFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
     const filePathExtSuccess = path.join(step2Dir, resourceIdFormatFilename);
-    const replacefilePathExtSuccess = path.join(step2Dir, generateReplaceFileName(resourceIdFormat, fileExt, resourceIdFormat, resourceIdFormatFilename, createdTime));
+    const replacefilePathExtSuccess = path.join(
+      step2Dir,
+      generateReplaceFileName(
+        resourceIdFormat,
+        fileExt,
+        resourceIdFormat,
+        resourceIdFormatFilename,
+        createdTime
+      )
+    );
 
-    const mockgetResourceById = getResourceById as jest.MockedFunction<typeof getResourceById>;
+    const mockgetResourceById = getResourceById as jest.MockedFunction<
+      typeof getResourceById
+    >;
     let resourceReturned: resourceById = {
       id: resourceIdFormat,
       title: resourceIdFormatFilename,
@@ -140,7 +185,9 @@ describe("Replace Resources", function () {
     };
     mockgetResourceById.mockResolvedValue(resourceReturned);
 
-    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    const mockdeleteResource = deleteResource as jest.MockedFunction<
+      typeof deleteResource
+    >;
     mockdeleteResource.mockResolvedValue(true);
 
     await deleteResources();
@@ -155,17 +202,33 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(replacefilePathExtSuccess)).toBe(true);
     expect(showErrorDialog).toHaveBeenCalledTimes(0);
   });
-  
+
   test(`4-Attachment name format DOES match resource + sync config enabled`, async () => {
-    console.debug(`#######################TEST-4-Attachment format DOES match resource + sync config enabled#######################`);
+    console.debug(
+      `#######################TEST-4-Attachment format DOES match resource + sync config enabled#######################`
+    );
     const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const filePathExtSuccess = path.join(step2Dir, attachmentNameFormatFilename);
-    const replacefilePathExtSuccess = path.join(step2Dir, generateReplaceFileName(attachmentNameFormat, fileExt, resourceIdFormat, attachmentNameFormatFilename, createdTime));
+    const filePathExtSuccess = path.join(
+      step2Dir,
+      attachmentNameFormatFilename
+    );
+    const replacefilePathExtSuccess = path.join(
+      step2Dir,
+      generateReplaceFileName(
+        attachmentNameFormat,
+        fileExt,
+        resourceIdFormat,
+        attachmentNameFormatFilename,
+        createdTime
+      )
+    );
 
-    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<
+      typeof getResourceByFilename
+    >;
     let resourceReturned: resourceByFileName = {
       id: resourceIdFormat,
       title: attachmentNameFormatFilename,
@@ -177,9 +240,13 @@ describe("Replace Resources", function () {
     };
     mockgetResource.mockResolvedValue(resultsReturned);
 
-    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    const mockdeleteResource = deleteResource as jest.MockedFunction<
+      typeof deleteResource
+    >;
     mockdeleteResource.mockResolvedValue(true);
-    const mocksyncConfigured = syncConfigured as jest.MockedFunction<typeof syncConfigured>;
+    const mocksyncConfigured = syncConfigured as jest.MockedFunction<
+      typeof syncConfigured
+    >;
     mocksyncConfigured.mockResolvedValue(true);
 
     await deleteResources();
@@ -198,18 +265,34 @@ describe("Replace Resources", function () {
   });
 
   test(`5-Attachment name format DOES match resource + sync config enabled + title is null/undefined`, async () => {
-    console.debug(`#######################TEST-5-Attachment name format DOES match resource + sync config enabled + title is null/undefined#######################`);
+    console.debug(
+      `#######################TEST-5-Attachment name format DOES match resource + sync config enabled + title is null/undefined#######################`
+    );
     const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const filePathExtSuccess = path.join(step2Dir, attachmentNameFormatFilename);
-    const replacefilePathExtSuccess = path.join(step2Dir, generateReplaceFileName(attachmentNameFormat, fileExt, resourceIdFormat, null, createdTime));
+    const filePathExtSuccess = path.join(
+      step2Dir,
+      attachmentNameFormatFilename
+    );
+    const replacefilePathExtSuccess = path.join(
+      step2Dir,
+      generateReplaceFileName(
+        attachmentNameFormat,
+        fileExt,
+        resourceIdFormat,
+        null,
+        createdTime
+      )
+    );
 
-    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<
+      typeof getResourceByFilename
+    >;
     let resourceReturned: resourceByFileName = {
       id: resourceIdFormat,
-      title: '',
+      title: "",
       user_created_time: createdTime,
     };
     let itemsReturned = new Array<resourceByFileName>(resourceReturned);
@@ -218,9 +301,13 @@ describe("Replace Resources", function () {
     };
     mockgetResource.mockResolvedValue(resultsReturned);
 
-    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    const mockdeleteResource = deleteResource as jest.MockedFunction<
+      typeof deleteResource
+    >;
     mockdeleteResource.mockResolvedValue(true);
-    const mocksyncConfigured = syncConfigured as jest.MockedFunction<typeof syncConfigured>;
+    const mocksyncConfigured = syncConfigured as jest.MockedFunction<
+      typeof syncConfigured
+    >;
     mocksyncConfigured.mockResolvedValue(true);
 
     await deleteResources();
@@ -239,15 +326,31 @@ describe("Replace Resources", function () {
   });
 
   test(`6-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled`, async () => {
-    console.debug(`#######################TEST-6-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled#######################`);
+    console.debug(
+      `#######################TEST-6-Attachment format DOES match resource + sync config enabled + run on start and after sync enabled#######################`
+    );
     const filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const filePathExtSuccess = path.join(step2Dir, attachmentNameFormatFilename);
-    const replacefilePathExtSuccess = path.join(step2Dir, generateReplaceFileName(attachmentNameFormat, fileExt, resourceIdFormat, attachmentNameFormatFilename, createdTime));
+    const filePathExtSuccess = path.join(
+      step2Dir,
+      attachmentNameFormatFilename
+    );
+    const replacefilePathExtSuccess = path.join(
+      step2Dir,
+      generateReplaceFileName(
+        attachmentNameFormat,
+        fileExt,
+        resourceIdFormat,
+        attachmentNameFormatFilename,
+        createdTime
+      )
+    );
 
-    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<
+      typeof getResourceByFilename
+    >;
     let resourceReturned: resourceByFileName = {
       id: resourceIdFormat,
       title: attachmentNameFormatFilename,
@@ -259,11 +362,18 @@ describe("Replace Resources", function () {
     };
     mockgetResource.mockResolvedValue(resultsReturned);
 
-    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    const mockdeleteResource = deleteResource as jest.MockedFunction<
+      typeof deleteResource
+    >;
     mockdeleteResource.mockResolvedValue(true);
-    const mocksyncConfigured = syncConfigured as jest.MockedFunction<typeof syncConfigured>;
+    const mocksyncConfigured = syncConfigured as jest.MockedFunction<
+      typeof syncConfigured
+    >;
     mocksyncConfigured.mockResolvedValue(true);
-    const mockrunOnStartAndAfterSyncSetting = runOnStartAndAfterSyncSetting as jest.MockedFunction<typeof runOnStartAndAfterSyncSetting>;
+    const mockrunOnStartAndAfterSyncSetting =
+      runOnStartAndAfterSyncSetting as jest.MockedFunction<
+        typeof runOnStartAndAfterSyncSetting
+      >;
     mockrunOnStartAndAfterSyncSetting.mockResolvedValue(true);
 
     await syncConfiguredAndRunOnStart();
@@ -285,15 +395,31 @@ describe("Replace Resources", function () {
   });
 
   test(`7-ensure replace completes subsequent times without manual removal of files from step 2 directory`, async () => {
-    console.debug(`#######################TEST-7-ensure replace completes subsequent times without manual removal of files from step 2 directory#######################`);
+    console.debug(
+      `#######################TEST-7-ensure replace completes subsequent times without manual removal of files from step 2 directory#######################`
+    );
     let filePathExt = path.join(testBaseDir, attachmentNameFormatFilename);
     fs.writeFileSync(filePathExt, "file");
     expect(fs.existsSync(filePathExt)).toBe(true);
 
-    const filePathExtSuccess = path.join(step2Dir, attachmentNameFormatFilename);
-    const replacefilePathExtSuccess = path.join(step2Dir, generateReplaceFileName(attachmentNameFormat, fileExt, resourceIdFormat, attachmentNameFormatFilename, createdTime));
+    const filePathExtSuccess = path.join(
+      step2Dir,
+      attachmentNameFormatFilename
+    );
+    const replacefilePathExtSuccess = path.join(
+      step2Dir,
+      generateReplaceFileName(
+        attachmentNameFormat,
+        fileExt,
+        resourceIdFormat,
+        attachmentNameFormatFilename,
+        createdTime
+      )
+    );
 
-    const mockgetResource = getResourceByFilename as jest.MockedFunction<typeof getResourceByFilename>;
+    const mockgetResource = getResourceByFilename as jest.MockedFunction<
+      typeof getResourceByFilename
+    >;
     let resourceReturned: resourceByFileName = {
       id: resourceIdFormat,
       title: attachmentNameFormatFilename,
@@ -305,7 +431,9 @@ describe("Replace Resources", function () {
     };
     mockgetResource.mockResolvedValue(resultsReturned);
 
-    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    const mockdeleteResource = deleteResource as jest.MockedFunction<
+      typeof deleteResource
+    >;
     mockdeleteResource.mockResolvedValue(true);
 
     await deleteResources();
@@ -336,10 +464,14 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(replacefilePathExtSuccess)).toBe(true);
     expect(showErrorDialog).toHaveBeenCalledTimes(0);
   });
-  
+
   test(`8-ensure execution halted and error dialog shows when files path setting empty`, async () => {
-    console.debug(`#######################TEST-8-ensure execution halted and error dialog shows when files path setting empty#######################`);
-    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
+    console.debug(
+      `#######################TEST-8-ensure execution halted and error dialog shows when files path setting empty#######################`
+    );
+    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<
+      typeof filesPathSetting
+    >;
     mockFilesPathSetting.mockResolvedValue(null);
     let testBaseDirSettingValue = await filesPathSetting();
     expect(testBaseDirSettingValue).toBe(null);
@@ -352,10 +484,14 @@ describe("Replace Resources", function () {
     expect(putResource).toHaveBeenCalledTimes(0);
     expect(showErrorDialog).toHaveBeenCalledTimes(3);
   });
-  
+
   test(`9-replacement occurs after re-adding files path setting`, async () => {
-    console.debug(`#######################TEST-9-replacement occurs after re-adding files path setting#######################`);
-    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<typeof filesPathSetting>;
+    console.debug(
+      `#######################TEST-9-replacement occurs after re-adding files path setting#######################`
+    );
+    const mockFilesPathSetting = filesPathSetting as jest.MockedFunction<
+      typeof filesPathSetting
+    >;
     mockFilesPathSetting.mockResolvedValue(null);
     let testBaseDirSettingValue = await filesPathSetting();
     expect(testBaseDirSettingValue).toBe(null);
@@ -378,9 +514,20 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(filePathExt)).toBe(true);
 
     const filePathExtSuccess = path.join(step2Dir, resourceIdFormatFilename);
-    const replacefilePathExtSuccess = path.join(step2Dir, generateReplaceFileName(resourceIdFormat, fileExt, resourceIdFormat, resourceIdFormatFilename, createdTime));
+    const replacefilePathExtSuccess = path.join(
+      step2Dir,
+      generateReplaceFileName(
+        resourceIdFormat,
+        fileExt,
+        resourceIdFormat,
+        resourceIdFormatFilename,
+        createdTime
+      )
+    );
 
-    const mockgetResourceById = getResourceById as jest.MockedFunction<typeof getResourceById>;
+    const mockgetResourceById = getResourceById as jest.MockedFunction<
+      typeof getResourceById
+    >;
     let resourceReturned: resourceById = {
       id: resourceIdFormat,
       title: resourceIdFormatFilename,
@@ -388,7 +535,9 @@ describe("Replace Resources", function () {
     };
     mockgetResourceById.mockResolvedValue(resourceReturned);
 
-    const mockdeleteResource = deleteResource as jest.MockedFunction<typeof deleteResource>;
+    const mockdeleteResource = deleteResource as jest.MockedFunction<
+      typeof deleteResource
+    >;
     mockdeleteResource.mockResolvedValue(true);
 
     await deleteResources();
@@ -403,5 +552,4 @@ describe("Replace Resources", function () {
     expect(fs.existsSync(replacefilePathExtSuccess)).toBe(true);
     expect(showErrorDialog).toHaveBeenCalledTimes(3);
   });
-
 });
