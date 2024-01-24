@@ -2,6 +2,8 @@
 
 ## not released
 
+## v1.3.2 (2024-01-24)
+
 chore: Bump dependencies (follow-redirects, node-fetch and @joplin/lib, plus npm update)
 formatting: run prettier
 
