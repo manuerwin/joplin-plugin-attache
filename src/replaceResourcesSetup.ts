@@ -10,7 +10,7 @@ export async function registerSettings(): Promise<void> {
   await joplin.settings.registerSection("AttachéSection", {
     label: "Attaché",
     iconName: "fas fa-exchange-alt",
-    description: "RESTART JOPLIN AFTER CHANGING THESE SETTINGS!",
+    description: "See https://github.com/manuerwin/joplin-plugin-attache for documentation. RESTART JOPLIN AFTER CHANGING THESE SETTINGS!",
   });
 
   await joplin.settings.registerSettings({
@@ -20,7 +20,7 @@ export async function registerSettings(): Promise<void> {
       subType: SettingItemSubType.DirectoryPath,
       section: "AttachéSection",
       public: true,
-      label: "Choose the location of files that will replace your resources.",
+      label: "Choose the location of files that will replace your resources. (REQUIRED)",
     },
   });
 
@@ -30,7 +30,7 @@ export async function registerSettings(): Promise<void> {
       type: SettingItemType.Bool,
       section: "AttachéSection",
       public: true,
-      label: "Run on start and after sync",
+      label: "Run on start and after sync (OPTIONAL)",
       description:
         "If checked true, Attaché will run immediately after Joplin starts and after each synchronisation. The default value is unchecked (false).",
     },
