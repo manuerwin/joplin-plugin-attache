@@ -2,6 +2,10 @@
 
 ## not released
 
+## v1.4.0 (2024-01-25)
+
+feat: more information on settings page for users
+
 ## v1.3.2 (2024-01-24)
 
 chore: Bump dependencies (follow-redirects, node-fetch and @joplin/lib, plus npm update)
